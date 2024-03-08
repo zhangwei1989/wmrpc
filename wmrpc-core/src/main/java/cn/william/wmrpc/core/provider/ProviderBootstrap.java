@@ -5,6 +5,7 @@ import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,7 +39,7 @@ public class ProviderBootstrap {
         skeleton.put(itfer.getCanonicalName(), x);
     }
 
-    private RpcResponse invokeRequest(RpcRequest request) {
+    public RpcResponse invoke(RpcRequest request) {
         Object bean = skeleton.get(request.getService());
         try {
             Method method = bean.getClass().getDeclaredMethods()[0];
