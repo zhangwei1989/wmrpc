@@ -11,7 +11,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order findById(Integer id) {
+        if (id == 404) {
+            throw new RuntimeException("404 Exception");
+        }
+
         return new Order(id, 15.6F);
     }
+
+
 
 }

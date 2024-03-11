@@ -4,8 +4,10 @@ import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,7 +20,7 @@ import java.util.Map;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/7 22:16
  */
-public class ProviderBootstrap {
+public class ProviderBootstrap implements ApplicationContextAware {
 
     @Autowired
     ApplicationContext context;
@@ -40,14 +42,41 @@ public class ProviderBootstrap {
     }
 
     public RpcResponse invoke(RpcRequest request) {
+        String methodName = request.getMethod();
+
+        if (methodName.equals("toString") || methodName.equals("hashCode") || methodName.equals("equals")) {
+            return null;
+        }
+
+        RpcResponse rpcResponse = new RpcResponse();
         Object bean = skeleton.get(request.getService());
         try {
-            Method method = bean.getClass().getDeclaredMethods()[0];
+            Method method = findMethod(bean, request.getMethod());
             Object result = method.invoke(bean, request.getArgs());
-            return new RpcResponse(true, result);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            rpcResponse.setStatus(true);
+            rpcResponse.setData(result);
+        } catch (InvocationTargetException e) {
+            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
+        } catch (IllegalAccessException e) {
+            rpcResponse.setEx(new RuntimeException(e.getMessage()));
         }
+
+        return rpcResponse;
     }
 
+    private Method findMethod(Object object, String methodName) {
+        Method[] methods = object.getClass().getDeclaredMethods();
+        for (Method method : methods) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
 }
