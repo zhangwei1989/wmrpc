@@ -44,6 +44,8 @@ public class ConsumerBootstrap  implements ApplicationContextAware {
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
+
+                stub.put(serviceName, consumer);
             });
         }
     }
