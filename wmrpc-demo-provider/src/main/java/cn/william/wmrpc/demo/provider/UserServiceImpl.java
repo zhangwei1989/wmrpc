@@ -12,7 +12,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findById(int id) {
+        if (id == 404) {
+            throw new RuntimeException("404 User not found");
+        }
+
         return new User(id, "WM-" + System.currentTimeMillis());
+    }
+
+    @Override
+    public int getId(int id) {
+        return id;
     }
 
 }

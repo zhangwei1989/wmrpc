@@ -13,10 +13,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RpcResponse<T> {
+public class RpcResponse {
 
     boolean status;  // 状态：true
 
-    T data;          // new User
+    Object data;          // new User
+
+    Exception exception;
 
 }

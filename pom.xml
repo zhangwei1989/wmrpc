@@ -24,6 +24,7 @@
         <module>wmrpc-core</module>
         <module>wmrpc-demo-api</module>
         <module>wmrpc-demo-provider</module>
+        <module>wmrpc-demo-consumer</module>
     </modules>
 
     <properties>
