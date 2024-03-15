@@ -13,7 +13,7 @@ public class RpcRequest {
 
     private String service;  // 接口：cn.william.wmrpc.demo.api.UserService
 
-    private String method;   // 方法：findById
+    private String methodSign;   // 方法：findById
 
     private Object[] args;   // 参数：100
 
