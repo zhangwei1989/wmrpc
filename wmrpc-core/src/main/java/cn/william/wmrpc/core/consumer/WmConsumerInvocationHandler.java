@@ -2,6 +2,7 @@ package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.utils.MethodUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
@@ -40,7 +41,7 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(this.serviceName);
-        rpcRequest.setMethod(method.getName());
+        rpcRequest.setMethodSign(MethodUtils.getMethodSign(method));
         rpcRequest.setArgs(args);
 
         RpcResponse rpcResponse = post(rpcRequest);

@@ -39,13 +39,23 @@ public class WmrpcDemoProviderApplication {
     @Bean
     ApplicationRunner providerRun() {
         return x -> {
+            // test 1 parameter method
             RpcRequest request = new RpcRequest();
             request.setService("cn.william.wmrpc.demo.api.UserService");
-            request.setMethod("findById");
+            request.setMethodSign("findById@1_int");
             request.setArgs(new Object[]{100});
 
             RpcResponse response = providerBootstrap.invoke(request);
-            System.out.printf("response: " + response.getData());
+            System.out.println("response: " + response.getData());
+
+            // test 2 parameters method
+            RpcRequest request1 = new RpcRequest();
+            request1.setService("cn.william.wmrpc.demo.api.UserService");
+            request1.setMethodSign("findById@2_int_java.lang.String");
+            request1.setArgs(new Object[]{100, "CC"});
+
+            RpcResponse response1 = providerBootstrap.invoke(request1);
+            System.out.println("response1: " + response1.getData());
         };
     }
 

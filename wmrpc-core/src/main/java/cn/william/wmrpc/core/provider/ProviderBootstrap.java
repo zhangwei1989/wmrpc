@@ -3,15 +3,17 @@ package cn.william.wmrpc.core.provider;
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.utils.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,7 +26,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext context;
 
-    private Map<String, Object> skeleton = new HashMap<>();
+    private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @PostConstruct
     public void buildProviders() {
@@ -37,15 +39,31 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void genInterface(Object x) {
         Class<?> itfer = x.getClass().getInterfaces()[0];
-        skeleton.put(itfer.getCanonicalName(), x);
+        Method[] methods = itfer.getMethods();
+        for (Method method : methods) {
+            // 如果是 Object 的方法，直接略过
+            if (MethodUtils.isLocalMethod(method)) {
+                continue;
+            }
+
+            createProvider(itfer.getCanonicalName(), x, method);
+        }
+    }
+
+    private void createProvider(String serviceName, Object bean, Method method) {
+        ProviderMeta providerMeta = new ProviderMeta();
+        providerMeta.setBean(bean);
+        providerMeta.setMethod(method);
+
+        skeleton.add(serviceName, providerMeta);
     }
 
     public RpcResponse invoke(RpcRequest request) {
-        Object bean = skeleton.get(request.getService());
+        ProviderMeta providerMeta = findProviderMeta(request);
         RpcResponse response = new RpcResponse();
         try {
-            Method method = findMethod(bean.getClass(), request.getMethod());
-            Object result = method.invoke(bean, request.getArgs());
+            Method method = providerMeta.getMethod();
+            Object result = method.invoke(providerMeta.getBean(), request.getArgs());
             response.setStatus(true);
             response.setData(result);
         } catch (InvocationTargetException e) {
@@ -57,11 +75,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
         return response;
     }
 
-    private Method findMethod(Class<?> aClass, String methodName) {
-        Method[] methods = aClass.getDeclaredMethods();
-        for (Method method : methods) {
-            if (methodName.contains(method.getName())) {
-                return method;
+    private ProviderMeta findProviderMeta(RpcRequest request) {
+        List<ProviderMeta> providerMetaList = skeleton.get(request.getService());
+
+        for (ProviderMeta providerMeta : providerMetaList) {
+            if (request.getMethodSign().equals(MethodUtils.getMethodSign(providerMeta.getMethod()))) {
+                return providerMeta;
             }
         }
 
