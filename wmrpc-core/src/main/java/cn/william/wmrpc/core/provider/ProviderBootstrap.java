@@ -5,6 +5,7 @@ import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
+import cn.william.wmrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -72,7 +73,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
             ProviderMeta meta = findProviderMeta(providerMetas, request.getMethodSign());
 
             Method method = meta.getMethod();
-            Object result = method.invoke(meta.getServiceImpl(), request.getArgs());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object result = method.invoke(meta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
         } catch (InvocationTargetException e) {
@@ -82,6 +84,19 @@ public class ProviderBootstrap implements ApplicationContextAware {
         }
 
         return rpcResponse;
+    }
+
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+        if (args == null || args.length == 0) {
+            return null;
+        }
+
+        Object[] autuals = new Object[args.length];
+        for (int i = 0; i < args.length; i++) {
+            autuals[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+        }
+
+        return autuals;
     }
 
     private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {
