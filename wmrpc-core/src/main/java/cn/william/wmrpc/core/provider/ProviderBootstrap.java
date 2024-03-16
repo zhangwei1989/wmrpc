@@ -17,7 +17,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -45,16 +45,19 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private void genInterface(Object x) {
-        Class<?> itfer = x.getClass().getInterfaces()[0];
-        Method[] methods = itfer.getMethods();
-        for (Method method : methods) {
-            String methodName = method.getName();
-            if (MethodUtils.checkLocalMethod(method)) {   // 过滤掉 Object 的方法
-                continue;
-            }
+        Arrays.stream(x.getClass().getInterfaces()).forEach(
+                itfer -> {
+                    Method[] methods = itfer.getMethods();
+                    for (Method method : methods) {
+                        String methodName = method.getName();
+                        if (MethodUtils.checkLocalMethod(method)) {   // 过滤掉 Object 的方法
+                            continue;
+                        }
 
-            createProvider(itfer, x, method);
-        }
+                        createProvider(itfer, x, method);
+                    }
+                }
+        );
     }
 
     private void createProvider(Class<?> itfer, Object x, Method method) {
