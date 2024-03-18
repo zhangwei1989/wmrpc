@@ -26,7 +26,7 @@ public class RoundRibonLoadBalancer<T> implements LoadBalancer<T> {
             return providers.get(0);
         }
 
-        return providers.get(index.getAndIncrement()&0x7fffffff % providers.size());
+        return providers.get((index.getAndIncrement()&0x7fffffff) % providers.size());
     }
 
 }
