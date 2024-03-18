@@ -1,5 +1,9 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.LoadBalancer;
+import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
+import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -26,5 +30,16 @@ public class ConsumerConfig {
         return x -> {
             consumerBootstrap.start();
         };
+    }
+
+    @Bean
+    public LoadBalancer loadBalancer() {
+//        return LoadBalancer.Default;
+        return new RoundRibonLoadBalancer();
+    }
+
+    @Bean
+    public Router loadRouter() {
+        return Router.Default;
     }
 }

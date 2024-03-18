@@ -4,15 +4,24 @@ import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.EnvironmentAware;
 import org.springframework.stereotype.Component;
+import org.springframework.core.env.Environment;
 
 @Component
 @WmProvider
 public class UserServiceImpl implements UserService {
 
+    @Autowired
+    Environment environment;
+
     @Override
     public User findById(int id) {
-        return new User(id, "WM-" + System.currentTimeMillis());
+        return new User(id, "WM-"
+                + environment.getProperty("server.port")
+                + "_"
+                + System.currentTimeMillis());
     }
 
     @Override
