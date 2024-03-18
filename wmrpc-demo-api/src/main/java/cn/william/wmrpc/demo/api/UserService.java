@@ -1,5 +1,8 @@
 package cn.william.wmrpc.demo.api;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
 
     User findById(int id);
@@ -21,4 +24,7 @@ public interface UserService {
     String getName();
 
     String getName(int id);
+
+    // 自定义扩展：参数和返回值里，map 里面有数组，数组里面有 User
+    Map<String, List> getMutipleUser(Map<String, List> map);
 }

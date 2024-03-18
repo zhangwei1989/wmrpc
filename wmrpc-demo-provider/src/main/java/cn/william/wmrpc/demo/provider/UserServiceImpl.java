@@ -6,6 +6,10 @@ import cn.william.wmrpc.demo.api.UserService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 @Component
 @WmProvider
 public class UserServiceImpl implements UserService {
@@ -58,6 +62,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String getName(int id) {
         return "Cola-" + id;
+    }
+
+    @Override
+    public Map<String, List> getMutipleUser(Map<String, List> map) {
+        return map;
     }
 
 }

@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
+import java.util.*;
 
 @SpringBootApplication
 @RestController
@@ -41,21 +41,17 @@ public class WmrpcDemoConsumerApplication {
 //                log.warn("=============> userService.getId(new User(100, \"WM\");, the result is {}", userService.getId(new User(100, "WM")));
 //                User user = userService.findById(1);
 //                System.out.println("RPC result userService.findById(1) = " + user);
-
-                // 解决让这个不报错
-//                userService.getId(1000);
-//                userService.getName();
 //
 //                Order order = orderService.findById(2);
 //                System.out.println("RPC result orderService.findById(2) = " + order);
-
-//            Order order404 = orderService.findById(404);
-//            System.out.println("RPC result orderService.findById(404) " + order404);
-
-                // 验证基本调用
-                log.warn("=============> userService.findById(100), the result is {}", userService.findById(100));
-                // 验证重载方法
-                log.warn("=============> userService.findById(100, \"WM\"), the result is {}", userService.findById(100, "WM"));
+//
+////                Order order404 = orderService.findById(404);
+////                System.out.println("RPC result orderService.findById(404) " + order404);
+//
+//                // 验证基本调用
+//                log.warn("=============> userService.findById(100), the result is {}", userService.findById(100));
+//                // 验证重载方法
+//                log.warn("=============> userService.findById(100, \"WM\"), the result is {}", userService.findById(100, "WM"));
 //            // 验证捕获 provider 异常
 ////                log.info("=============> userService.findById(404), the result is {}", userService.findById(404));
 //                // 验证基本类型
@@ -68,8 +64,22 @@ public class WmrpcDemoConsumerApplication {
 //                log.info("=============> userService.getIds(), the result is {}", Arrays.toString(userService.getIds()));
 //                // 验证方法返回数组
 //                log.info("=============> userService.getLongIds(), the result is {}", Arrays.toString(userService.getLongIds()));
-//                // 验证方法返回数组
+//                // 验证方法参数是数组
 //                log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", Arrays.toString(userService.getIds(new int[]{4, 5, 6})));
+                // 参数和返回值里，map 里面有数组，数组里面有 User
+                User user1 = new User(1, "zw");
+                User user2 = new User(2, "wcl");
+                User user3 = new User(3, "zja");
+
+                List<User> userList = new ArrayList<>();
+                userList.add(user1);
+                userList.add(user2);
+                userList.add(user3);
+
+                Map<String, List> map = new HashMap<>();
+
+                map.put("userMap", userList);
+                log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", userService.getMutipleUser(map));
             }
         };
     }

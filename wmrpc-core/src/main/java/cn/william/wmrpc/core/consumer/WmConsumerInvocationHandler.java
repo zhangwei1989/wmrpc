@@ -3,14 +3,20 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.utils.MethodUtils;
+import cn.william.wmrpc.core.utils.TypeUtils;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.databind.type.ArrayType;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,8 +57,18 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
             if (data instanceof JSONObject) {
                 JSON dataJSON = (JSONObject) data;
                 return JSON.toJavaObject(dataJSON, method.getReturnType());
+            } else if (data instanceof JSONArray array) {
+                Object[] originArray = array.toArray();
+                Class<?> componentType = method.getReturnType().getComponentType();
+                Object result = Array.newInstance(componentType, originArray.length);
+
+                for (int i = 0; i < originArray.length; i++) {
+                    Array.set(result, i, TypeUtils.cast(originArray[i], componentType));
+                }
+
+                return result;
             } else {
-                return data;
+                return TypeUtils.cast(data, method.getReturnType());
             }
         } else {
             Exception ex = rpcResponse.getException();
