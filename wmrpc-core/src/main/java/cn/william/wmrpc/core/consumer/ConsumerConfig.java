@@ -5,12 +5,17 @@ import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
 import cn.william.wmrpc.core.loadbalance.LoadBalancer;
 import cn.william.wmrpc.core.loadbalance.Router;
+import cn.william.wmrpc.core.registry.RegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
+
+import java.util.List;
 
 /**
  * Description for this class.
@@ -21,6 +26,9 @@ import org.springframework.core.annotation.Order;
 @Configuration
 @Slf4j
 public class ConsumerConfig {
+
+    @Autowired
+    private Environment environment;
 
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
@@ -47,6 +55,12 @@ public class ConsumerConfig {
     @Bean
     Router consumer_rt() {
         return Router.Default;
+    }
+
+    @Bean
+    RegistryCenter consumer_rc() {
+        List<String> providers = List.of(environment.getProperty("wmrpc.providers").split(","));
+        return new RegistryCenter.StaticRegistryCenter(providers);
     }
 
     @Bean

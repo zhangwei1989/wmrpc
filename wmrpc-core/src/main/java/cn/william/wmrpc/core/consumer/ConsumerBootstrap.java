@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.loadbalance.LoadBalancer;
 import cn.william.wmrpc.core.loadbalance.Router;
+import cn.william.wmrpc.core.registry.RegistryCenter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -32,6 +33,9 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     @Autowired
     private RpcContext rpcContext;
 
+    @Autowired
+    private RegistryCenter registryCenter;
+
     private Router router;
 
     private LoadBalancer loadBalancer;
@@ -58,6 +62,8 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                         Object proxyService = stub.get(serviceName);
 
                         if (proxyService == null) {
+                            List<String> providers = registryCenter.fetchAll(serviceName);
+
                             proxyService = createProxy(service, rpcContext, providers);
                         }
 
