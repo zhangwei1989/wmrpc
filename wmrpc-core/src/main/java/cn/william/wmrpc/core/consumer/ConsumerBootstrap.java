@@ -5,6 +5,8 @@ import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.registry.ChangedListener;
+import cn.william.wmrpc.core.registry.Event;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.util.Strings;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Description for this class.
@@ -74,9 +77,19 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
 
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = rc.fetchAll(serviceName);
+        List<String> providers = mapUrls(rc.fetchAll(serviceName));
+
+        rc.subscribe(serviceName, event ->  {
+                providers.clear();
+                providers.addAll(mapUrls(event.getData()));
+        });
 
         return createConsumer(service, context, providers);
+    }
+
+    private List<String> mapUrls(List<String> nodes) {
+        return nodes.stream()
+                .map(x -> "http://" + x).collect(Collectors.toList());
     }
 
     private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {

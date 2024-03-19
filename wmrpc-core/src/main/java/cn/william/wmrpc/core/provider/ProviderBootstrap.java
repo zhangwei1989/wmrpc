@@ -61,7 +61,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
             throw new RuntimeException(e);
         }
 
-        this.instance = ip + "_" + port;
+        this.instance = ip + ":" + port;
 
         skeleton.keySet().forEach(this::registerService);
     }
