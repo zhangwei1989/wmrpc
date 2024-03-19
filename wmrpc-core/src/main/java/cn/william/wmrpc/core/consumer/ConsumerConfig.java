@@ -1,6 +1,12 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
+import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
+import cn.william.wmrpc.core.loadbalance.LoadBalancer;
+import cn.william.wmrpc.core.loadbalance.Router;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,5 +36,21 @@ public class ConsumerConfig {
             consumerBootstrap.start();
             log.info("ConsumerBootstrap started...");
         };
+    }
+
+    @Bean
+    LoadBalancer consumser_lb() {
+//        return LoadBalancer.Default;
+        return new RoundRibbonLoadBalancer();
+    }
+
+    @Bean
+    Router consumer_rt() {
+        return Router.Default;
+    }
+
+    @Bean
+    RpcContext rpcContext(@Autowired Router router, @Autowired LoadBalancer loadBalancer) {
+        return new RpcContext(router, loadBalancer);
     }
 }

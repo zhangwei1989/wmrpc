@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.utils.MethodUtils;
@@ -7,16 +8,17 @@ import cn.william.wmrpc.core.utils.TypeUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.type.ArrayType;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.yaml.snakeyaml.util.ArrayUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,12 +30,18 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class WmConsumerInvocationHandler implements InvocationHandler {
 
+    private RpcContext rpcContext;
+
     private final String serviceName;
 
     private final MediaType MEDIA_TYPE_JSON = MediaType.get("application/json");
 
-    public WmConsumerInvocationHandler(String serviceName) {
+    private List<String> providers;
+
+    public WmConsumerInvocationHandler(String serviceName, RpcContext rpcContext, List<String> providers) {
         this.serviceName = serviceName;
+        this.rpcContext = rpcContext;
+        this.providers = providers;
     }
 
     private final OkHttpClient client = new OkHttpClient().newBuilder()
@@ -50,7 +58,12 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.getMethodSign(method));
         rpcRequest.setArgs(args);
 
-        RpcResponse rpcResponse = post(rpcRequest);
+        List<String> ps = rpcContext.getRouter().route(providers);
+        String url = (String) rpcContext.getLoadBalancer().choose(ps);
+
+        log.info("==========> loadbalance choose url is {}", url);
+
+        RpcResponse rpcResponse = post(rpcRequest, url);
 
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
@@ -77,13 +90,13 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         }
     }
 
-    private RpcResponse post(RpcRequest rpcRequest) {
+    private RpcResponse post(RpcRequest rpcRequest, String url) {
         // JSON 序列化
         String requestJSON = JSON.toJSONString(rpcRequest);
         log.info("=============> requestJSON: {}", requestJSON);
 
         Request request = new Request.Builder()
-                .url("http://localhost:8080")
+                .url(url)
                 .post(RequestBody.create(requestJSON, MEDIA_TYPE_JSON))
                 .build();
 

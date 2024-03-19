@@ -1,6 +1,7 @@
 package cn.william.wmrpc.demo.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
+import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.consumer.ConsumerConfig;
 import cn.william.wmrpc.demo.api.Order;
 import cn.william.wmrpc.demo.api.OrderService;
@@ -13,6 +14,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.*;
@@ -28,6 +30,11 @@ public class WmrpcDemoConsumerApplication {
 
     @WmConsumer
     private OrderService orderService;
+
+    @RequestMapping("/")
+    public User findById(int id) {
+        return userService.findById(id);
+    }
 
     @Bean
     ApplicationRunner consumerRun() {

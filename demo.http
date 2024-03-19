@@ -1,3 +1,6 @@
+### 获取8090用户信息
+GET http://localhost:8090/?id=1000
+
 ### 获取用户信息
 POST http://localhost:8080/
 Content-Type: application/json
