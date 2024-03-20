@@ -7,6 +7,7 @@ import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import cn.william.wmrpc.core.utils.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import lombok.SneakyThrows;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,6 +53,16 @@ public class ProviderBootstrap implements ApplicationContextAware {
         String ip = InetAddress.getLocalHost().getHostAddress();
         skeleton.keySet().stream().forEach(service -> {
             rc.register(service, ip + ":" + port);
+        });
+    }
+
+    @SneakyThrows
+    @PreDestroy
+    public void stop() {
+        RegistryCenter rc = context.getBean(RegistryCenter.class);
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        skeleton.keySet().stream().forEach(service -> {
+            rc.unregister(service, ip + ":" + port);
         });
     }
 
