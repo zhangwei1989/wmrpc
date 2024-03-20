@@ -9,6 +9,7 @@ import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,7 @@ import java.util.Map;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/7 22:16
  */
+@Data
 @Slf4j
 public class ProviderBootstrap implements ApplicationContextAware {
 
@@ -104,43 +106,6 @@ public class ProviderBootstrap implements ApplicationContextAware {
         providerMeta.setServiceImpl(x);
         log.info("==========> create a provider {}", providerMeta);
         skeleton.add(itfer.getCanonicalName(), providerMeta);
-    }
-
-    public RpcResponse invoke(RpcRequest request) {
-        RpcResponse rpcResponse = new RpcResponse();
-        List<ProviderMeta> providerMetas = skeleton.get(request.getService());
-        try {
-            ProviderMeta meta = findProviderMeta(providerMetas, request.getMethodSign());
-
-            Method method = meta.getMethod();
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
-            Object result = method.invoke(meta.getServiceImpl(), args);
-            rpcResponse.setStatus(true);
-            rpcResponse.setData(result);
-        } catch (InvocationTargetException e) {
-            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
-        } catch (IllegalAccessException e) {
-            rpcResponse.setEx(new RuntimeException(e.getMessage()));
-        }
-
-        return rpcResponse;
-    }
-
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
-        if (args == null || args.length == 0) {
-            return null;
-        }
-
-        Object[] autuals = new Object[args.length];
-        for (int i = 0; i < args.length; i++) {
-            autuals[i] = TypeUtils.cast(args[i], parameterTypes[i]);
-        }
-
-        return autuals;
-    }
-
-    private ProviderMeta findProviderMeta(List<ProviderMeta> providerMetas, String methodSign) {
-        return providerMetas.stream().filter(x -> x.getMethodSign().equals(methodSign)).findFirst().orElse(null);
     }
 
     @Override
