@@ -1,9 +1,8 @@
 package cn.william.wmrpc.core.cluster;
 
-import cn.william.wmrpc.core.loadbalance.LoadBalancer;
+import cn.william.wmrpc.core.api.LoadBalancer;
 
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**

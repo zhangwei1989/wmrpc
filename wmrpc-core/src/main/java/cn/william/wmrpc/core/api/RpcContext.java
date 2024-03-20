@@ -1,9 +1,6 @@
 package cn.william.wmrpc.core.api;
 
-import cn.william.wmrpc.core.loadbalance.LoadBalancer;
-import cn.william.wmrpc.core.loadbalance.Router;
 import lombok.Getter;
-import okhttp3.Route;
 
 /**
  * Description for this class.

@@ -2,9 +2,9 @@ package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.RpcContext;
-import cn.william.wmrpc.core.loadbalance.LoadBalancer;
-import cn.william.wmrpc.core.loadbalance.Router;
-import cn.william.wmrpc.core.registry.RegistryCenter;
+import cn.william.wmrpc.core.api.LoadBalancer;
+import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.api.RegistryCenter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

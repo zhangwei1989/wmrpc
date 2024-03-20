@@ -1,4 +1,4 @@
-package cn.william.wmrpc.core.loadbalance;
+package cn.william.wmrpc.core.api;
 
 import java.util.List;
 
