@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Description for this class.
+ * 消费端启动类
  *
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/10

@@ -1,24 +1,18 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.api.*;
+import cn.william.wmrpc.core.consumer.http.HttpInvoker;
+import cn.william.wmrpc.core.consumer.http.OkHttpInvoker;
 import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.*;
-import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Description for this class.
+ * 消费端动态代理类
  *
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/10
@@ -26,20 +20,13 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class WmInvocationHandler implements InvocationHandler {
 
-    final static MediaType JSONTYPE = MediaType.get("application/json; charset=utf-8");
-
     Class<?> service;
 
     RpcContext context;
 
     List<String> providers;
 
-    OkHttpClient client = new OkHttpClient.Builder()
-            .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-            .readTimeout(1, TimeUnit.SECONDS)
-            .writeTimeout(1, TimeUnit.SECONDS)
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .build();
+    HttpInvoker httpInvoker = new OkHttpInvoker();
 
     public WmInvocationHandler(Class<?> clazz, RpcContext context, List<String> providers) {
         this.service = clazz;
@@ -63,7 +50,7 @@ public class WmInvocationHandler implements InvocationHandler {
         String url = (String) context.getLoadBalancer().choose(urls);
 
         log.info("loadBalancer.choose(urls) ==> {}", url);
-        RpcResponse rpcResponse = post(rpcRequest, url);
+        RpcResponse rpcResponse = httpInvoker.post(rpcRequest, url);
 
         // TODO 处理基本类型
         if (rpcResponse.isStatus()) {
@@ -76,22 +63,4 @@ public class WmInvocationHandler implements InvocationHandler {
         }
     }
 
-    private RpcResponse post(RpcRequest rpcRequest, String url) {
-        String reqJson = JSON.toJSONString(rpcRequest);
-        System.out.println("===> reqJSON: " + reqJson);
-
-        Request request = new Request.Builder()
-                .url(url)
-                .post(RequestBody.create(reqJson, JSONTYPE))
-                .build();
-        try {
-            String respJson = client.newCall(request).execute().body().string();
-            System.out.println("===> respJSON: " + respJson);
-            RpcResponse rpcResponse = JSON.parseObject(respJson, RpcResponse.class);
-            return rpcResponse;
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        }
-    }
 }
