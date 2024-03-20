@@ -14,11 +14,13 @@ public interface RegistryCenter {
 
     void stop();
 
-    boolean register(String provider);
+    void register(String service, String instance);
 
-    boolean unregister(String provider);
+    void unregister(String service, String instance);
 
     List<String> fetchAll(String service);
+
+    void subscribe(ChangedListener listener);
 
     static class StaticRegistryCenter implements RegistryCenter {
 
@@ -39,19 +41,21 @@ public interface RegistryCenter {
         }
 
         @Override
-        public boolean register(String provider) {
-            return false;
+        public void register(String service, String instance) {
         }
 
         @Override
-        public boolean unregister(String provider) {
-            return false;
+        public void unregister(String service, String instance) {
         }
 
         @Override
         public List<String> fetchAll(String service) {
             return providers;
         }
-    }
 
+        @Override
+        public void subscribe(ChangedListener listener) {
+
+        }
+    }
 }

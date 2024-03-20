@@ -5,6 +5,7 @@ import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -57,8 +58,7 @@ public class ConsumerConfig {
 
     @Bean
     RegistryCenter consumer_rc() {
-        List<String> providers = List.of(environment.getProperty("wmrpc.providers").split(","));
-        return new RegistryCenter.StaticRegistryCenter(providers);
+        return new ZkRegistryCenter();
     }
 
     @Bean

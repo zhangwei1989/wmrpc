@@ -1,12 +1,15 @@
 package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
+import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import cn.william.wmrpc.core.utils.TypeUtils;
 import jakarta.annotation.PostConstruct;
+import lombok.SneakyThrows;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -14,6 +17,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +32,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext context;
 
+    @Value("${server.port}")
+    private String port;
+
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @PostConstruct
@@ -37,6 +44,15 @@ public class ProviderBootstrap implements ApplicationContextAware {
 //        skeleton.putAll(providers);
         providers.values().forEach(x ->
                 genInterface(x));
+    }
+
+    @SneakyThrows
+    public void start() {
+        RegistryCenter rc = context.getBean(RegistryCenter.class);
+        String ip = InetAddress.getLocalHost().getHostAddress();
+        skeleton.keySet().stream().forEach(service -> {
+            rc.register(service, ip + ":" + port);
+        });
     }
 
     private void genInterface(Object x) {
