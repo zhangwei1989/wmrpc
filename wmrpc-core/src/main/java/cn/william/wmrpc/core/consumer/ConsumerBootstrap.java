@@ -5,6 +5,7 @@ import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -17,6 +18,7 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Description for this class.
@@ -24,6 +26,7 @@ import java.util.Map;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/7 22:16
  */
+@Slf4j
 public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     private ApplicationContext context;
@@ -40,13 +43,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
     private LoadBalancer loadBalancer;
 
-    private List<String> providers;
-
     private Map<String, Object> stub = new HashMap<>();
 
     public void start() {
         String[] names = context.getBeanDefinitionNames();
-        providers = List.of(environment.getProperty("wmrpc.providers").split(","));
 
         for (String name : names) {
             Object bean = context.getBean(name);
@@ -62,7 +62,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                         Object proxyService = stub.get(serviceName);
 
                         if (proxyService == null) {
-                            List<String> providers = registryCenter.fetchAll(serviceName);
+                            List<String> nodes = registryCenter.fetchAll(serviceName);
+                            log.info("consumer fetchAll nodes are: ");
+                            nodes.stream().forEach(System.out::printf);
+                            List<String> providers = mapUrls(nodes);
 
                             proxyService = createProxy(service, rpcContext, providers);
                         }
@@ -82,6 +85,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 clazz = clazz.getSuperclass();
             }
         }
+    }
+
+    private List<String> mapUrls(List<String> nodes) {
+        return nodes.stream().map(x -> "http://" + x).collect(Collectors.toList());
     }
 
     // 创建代理对象
