@@ -63,9 +63,11 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
 
                         if (proxyService == null) {
                             List<String> nodes = registryCenter.fetchAll(serviceName);
-                            log.info("consumer fetchAll nodes are: ");
-                            nodes.stream().forEach(System.out::printf);
+                            log.info("======> consumer fetchAll nodes are: ");
+                            nodes.stream().forEach(System.out::println);
                             List<String> providers = mapUrls(nodes);
+
+                            subcribeToRC(serviceName, providers);
 
                             proxyService = createProxy(service, rpcContext, providers);
                         }
@@ -85,6 +87,13 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
                 clazz = clazz.getSuperclass();
             }
         }
+    }
+
+    private void subcribeToRC(String serviceName, List<String> providers) {
+        registryCenter.subscribe(serviceName, event -> {
+            providers.clear();
+            providers.addAll(mapUrls(event.getData()));
+        });
     }
 
     private List<String> mapUrls(List<String> nodes) {

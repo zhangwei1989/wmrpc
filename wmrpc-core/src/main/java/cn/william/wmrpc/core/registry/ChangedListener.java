@@ -1,4 +1,4 @@
-package cn.william.wmrpc.core.api;
+package cn.william.wmrpc.core.registry;
 
 /**
  * Description for this class.
@@ -7,4 +7,6 @@ package cn.william.wmrpc.core.api;
  * @Create : 2024/3/20
  */
 public interface ChangedListener {
+
+    void fire(Event event);
 }

@@ -1,11 +1,11 @@
 package cn.william.wmrpc.core.registry;
 
-import cn.william.wmrpc.core.api.ChangedListener;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
@@ -65,7 +65,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
         // 创建临时节点
         String instancePath = servicePath + "/" + instance;
-        client.delete().forPath(instancePath);
+        client.delete().quietly().forPath(instancePath);
     }
 
     @SneakyThrows
@@ -78,9 +78,21 @@ public class ZkRegistryCenter implements RegistryCenter {
     }
 
     // consumer 订阅
+    @SneakyThrows
     @Override
-    public void subscribe(ChangedListener listener) {
-
+    public void subscribe(String service, ChangedListener listener) {
+        String servicePath = "/" + service;
+        final TreeCache cache = TreeCache.newBuilder(client, servicePath)
+                .setMaxDepth(2)
+                .setCacheData(true)
+                .build();
+        cache.start();
+        cache.getListenable().addListener((curatorFramework, treeCacheEvent) -> {
+            // 有任何变动，这里会执行
+            log.info("======> TreeCache Event is {}", treeCacheEvent);
+            List<String> nodes = fetchAll(service);
+            listener.fire(new Event(nodes));
+        });
     }
 
 }

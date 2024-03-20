@@ -1,5 +1,7 @@
 package cn.william.wmrpc.core.api;
 
+import cn.william.wmrpc.core.registry.ChangedListener;
+
 import java.util.List;
 
 /**
@@ -20,7 +22,8 @@ public interface RegistryCenter {
 
     List<String> fetchAll(String service);
 
-    void subscribe(ChangedListener listener);
+    // consumer 订阅
+    void subscribe(String service, ChangedListener listener);
 
     static class StaticRegistryCenter implements RegistryCenter {
 
@@ -54,7 +57,7 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void subscribe(ChangedListener listener) {
+        public void subscribe(String service, ChangedListener listener) {
 
         }
     }
