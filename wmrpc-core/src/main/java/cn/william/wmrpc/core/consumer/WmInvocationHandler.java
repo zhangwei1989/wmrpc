@@ -8,6 +8,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -67,22 +68,7 @@ public class WmInvocationHandler implements InvocationHandler {
         // TODO 处理基本类型
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
-            if (data instanceof JSONObject) {
-                JSONObject jsonResult = (JSONObject) rpcResponse.getData();
-                return jsonResult.toJavaObject(method.getReturnType());
-            } else if (data instanceof JSONArray jsonArray) {
-                Object[] array = jsonArray.toArray();
-                Class<?> componentType = method.getReturnType().getComponentType();
-                Object resultArray = Array.newInstance(componentType, array.length);
-                for (int i = 0; i < array.length; i++) {
-                    Array.set(resultArray, i, array[i]);
-                }
-
-                return resultArray;
-            }
-            else {
-                return TypeUtils.cast(data, method.getReturnType());
-            }
+            return TypeUtils.castMethodResult(method, data, rpcResponse);
         } else {
             Exception ex = rpcResponse.getEx();
             ex.printStackTrace();

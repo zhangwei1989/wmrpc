@@ -1,8 +1,12 @@
 package cn.william.wmrpc.core.util;
 
+import cn.william.wmrpc.core.api.RpcResponse;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 
@@ -65,5 +69,25 @@ public class TypeUtils {
         }
 
         return null;
+    }
+
+    @Nullable
+    public static Object castMethodResult(Method method, Object data, RpcResponse rpcResponse) {
+        if (data instanceof JSONObject) {
+            JSONObject jsonResult = (JSONObject) rpcResponse.getData();
+            return jsonResult.toJavaObject(method.getReturnType());
+        } else if (data instanceof JSONArray jsonArray) {
+            Object[] array = jsonArray.toArray();
+            Class<?> componentType = method.getReturnType().getComponentType();
+            Object resultArray = Array.newInstance(componentType, array.length);
+            for (int i = 0; i < array.length; i++) {
+                Array.set(resultArray, i, array[i]);
+            }
+
+            return resultArray;
+        }
+        else {
+            return TypeUtils.cast(data, method.getReturnType());
+        }
     }
 }

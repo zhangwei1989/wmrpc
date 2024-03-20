@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
+import cn.william.wmrpc.core.util.MethodUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -52,7 +53,7 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
             Object bean = applicationContext.getBean(name);
-            List<Field> fields = findAnnotatedField(bean.getClass());
+            List<Field> fields = MethodUtils.findAnnotatedField(bean.getClass(), WmConsumer.class);
             fields.stream().forEach(f -> {
                 Class<?> service = f.getType();
                 String serviceName = service.getCanonicalName();
@@ -97,22 +98,6 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
                 new Class<?>[]{service}, new WmInvocationHandler(service, context, providers));
     }
 
-    private List<Field> findAnnotatedField(Class<?> aClass) {
-        List<Field> result = new ArrayList<>();
-
-        while (aClass != null) {
-            Field[] fields = aClass.getDeclaredFields();
-            for (Field f : fields) {
-                if (f.isAnnotationPresent(WmConsumer.class)) {
-                    result.add(f);
-                }
-            }
-
-            aClass = aClass.getSuperclass();
-        }
-
-        return result;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
