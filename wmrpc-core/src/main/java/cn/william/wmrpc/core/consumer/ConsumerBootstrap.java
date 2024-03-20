@@ -5,25 +5,23 @@ import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RpcContext;
-import cn.william.wmrpc.core.registry.ChangedListener;
-import cn.william.wmrpc.core.registry.Event;
+import cn.william.wmrpc.core.meta.InstanceMeta;
+import cn.william.wmrpc.core.meta.ServiceMeta;
+import cn.william.wmrpc.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
-import cn.william.wmrpc.core.util.MethodUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 消费端启动类
@@ -33,7 +31,7 @@ import java.util.stream.Collectors;
  */
 @Data
 @Slf4j
-public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentAware {
+public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
 
     ApplicationContext applicationContext;
 
@@ -41,9 +39,18 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
 
     private Map<String, Object> stub = new HashMap<>();
 
+    @Value("${app.id}")
+    private String app;
+
+    @Value("${app.namespace}")
+    private String namespace;
+
+    @Value("${app.env}")
+    private String env;
+
     public void start() {
-        Router router = applicationContext.getBean(Router.class);
-        LoadBalancer loadBalancer = applicationContext.getBean(LoadBalancer.class);
+        Router<InstanceMeta> router = applicationContext.getBean(Router.class);
+        LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
 
         RpcContext context = new RpcContext();
@@ -60,7 +67,6 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
                 Object consumer = stub.get(serviceName);
                 if (consumer == null) {
                     consumer = createFromRegistry(service, context, rc);
-//                            createConsumer(service, context, List.of(providers));
                 }
 
                 f.setAccessible(true);
@@ -78,26 +84,26 @@ public class ConsumerBootstrap  implements ApplicationContextAware, EnvironmentA
 
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
-        List<String> providers = mapUrls(rc.fetchAll(serviceName));
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app)
+                .namespace(namespace)
+                .name(serviceName)
+                .env(env)
+                .build();
+        List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
 
-        rc.subscribe(serviceName, event ->  {
-                providers.clear();
-                providers.addAll(mapUrls(event.getData()));
+        rc.subscribe(serviceMeta, event -> {
+            providers.clear();
+            providers.addAll(event.getData());
         });
 
         return createConsumer(service, context, providers);
     }
 
-    private List<String> mapUrls(List<String> nodes) {
-        return nodes.stream()
-                .map(x -> "http://" + x).collect(Collectors.toList());
-    }
-
-    private Object createConsumer(Class<?> service, RpcContext context, List<String> providers) {
+    private Object createConsumer(Class<?> service, RpcContext context, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(),
                 new Class<?>[]{service}, new WmInvocationHandler(service, context, providers));
     }
-
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.consumer.http.HttpInvoker;
 import cn.william.wmrpc.core.consumer.http.OkHttpInvoker;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +25,11 @@ public class WmInvocationHandler implements InvocationHandler {
 
     RpcContext context;
 
-    List<String> providers;
+    List<InstanceMeta> providers;
 
     HttpInvoker httpInvoker = new OkHttpInvoker();
 
-    public WmInvocationHandler(Class<?> clazz, RpcContext context, List<String> providers) {
+    public WmInvocationHandler(Class<?> clazz, RpcContext context, List<InstanceMeta> providers) {
         this.service = clazz;
         this.context = context;
         this.providers = providers;
@@ -46,11 +47,11 @@ public class WmInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        List<String> urls = context.getRouter().route(providers);
-        String url = (String) context.getLoadBalancer().choose(urls);
+        List<InstanceMeta> instances = context.getRouter().route(providers);
+        InstanceMeta instance = context.getLoadBalancer().choose(instances);
 
-        log.info("loadBalancer.choose(urls) ==> {}", url);
-        RpcResponse rpcResponse = httpInvoker.post(rpcRequest, url);
+        log.info("loadBalancer.choose(urls) ==> {}", instance);
+        RpcResponse rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
 
         // TODO 处理基本类型
         if (rpcResponse.isStatus()) {

@@ -1,12 +1,10 @@
 package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
-import cn.william.wmrpc.core.registry.ZkRegistryCenter;
+import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;

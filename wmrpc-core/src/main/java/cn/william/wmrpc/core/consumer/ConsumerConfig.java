@@ -3,17 +3,15 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
-import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
-import cn.william.wmrpc.core.registry.ZkRegistryCenter;
+import cn.william.wmrpc.core.meta.InstanceMeta;
+import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-
-import java.util.List;
 
 /**
  * 消费端
@@ -41,13 +39,13 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public LoadBalancer loadBalancer() {
+    public LoadBalancer<InstanceMeta> loadBalancer() {
 //        return LoadBalancer.Default;
         return new RoundRibonLoadBalancer();
     }
 
     @Bean
-    public Router loadRouter() {
+    public Router<InstanceMeta> loadRouter() {
         return Router.Default;
     }
 
