@@ -1,10 +1,8 @@
 package cn.william.wmrpc.core.util;
 
-import cn.william.wmrpc.core.annotation.WmConsumer;
-
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,6 +19,7 @@ public class MethodUtils {
         return method.getDeclaringClass().equals(Object.class);
 
     }
+
     public static String methodSign(Method method) {
         String name = method.getName();
         StringBuilder sb = new StringBuilder(method.getName());
@@ -35,13 +34,13 @@ public class MethodUtils {
         return null;
     }
 
-    public static List<Field> findAnnotatedField(Class<?> aClass, Type annotation) {
+    public static List<Field> findAnnotatedField(Class<?> aClass, Class<? extends Annotation> annotationClass) {
         List<Field> result = new ArrayList<>();
 
         while (aClass != null) {
             Field[] fields = aClass.getDeclaredFields();
             for (Field f : fields) {
-                if (f.isAnnotationPresent(WmConsumer.class)) {
+                if (f.isAnnotationPresent(annotationClass)) {
                     result.add(f);
                 }
             }

@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 /**
- * 消费端
+ * 消费端配置类
  *
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/10
