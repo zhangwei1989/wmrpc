@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.annotation.Order;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
@@ -39,6 +40,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private InstanceMeta instance;
 
+    private RegistryCenter rc;
+
     @Value("${server.port}")
     private Integer port;
 
@@ -51,10 +54,12 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${app.env}")
     private String env;
 
+
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @PostConstruct
     public void init() {
+        rc = context.getBean(RegistryCenter.class);
         Map<String, Object> providers = context.getBeansWithAnnotation(WmProvider.class);
         providers.forEach((x, y) -> System.out.println(x));
         providers.values().forEach(this::genInterface);
@@ -68,18 +73,19 @@ public class ProviderBootstrap implements ApplicationContextAware {
             throw new RuntimeException(e);
         }
 
+        rc.start();
         this.instance = InstanceMeta.http(ip, port);
-
         skeleton.keySet().forEach(this::registerService);
     }
 
     @PreDestroy
     public void stop() {
+        log.info("======>unreg all services");
         skeleton.keySet().forEach(this::unregisterService);
+        rc.stop();
     }
 
     private void registerService(String service) {
-        RegistryCenter rc = context.getBean(RegistryCenter.class);
         ServiceMeta serviceMeta = ServiceMeta.builder()
                 .app(app)
                 .namespace(namespace)
@@ -90,7 +96,6 @@ public class ProviderBootstrap implements ApplicationContextAware {
     }
 
     private void unregisterService(String service) {
-        RegistryCenter rc = context.getBean(RegistryCenter.class);
         ServiceMeta serviceMeta = ServiceMeta.builder()
                 .app(app)
                 .namespace(namespace)
