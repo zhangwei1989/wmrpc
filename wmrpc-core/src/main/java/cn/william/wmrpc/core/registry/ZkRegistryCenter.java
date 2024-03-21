@@ -31,11 +31,13 @@ public class ZkRegistryCenter implements RegistryCenter {
                 .retryPolicy(new BoundedExponentialBackoffRetry(1000, 1000, 3))
                 .build();
         client.start();
+        log.info("======> zk rc started......");
     }
 
     @Override
     public void stop() {
         client.close();
+        log.info("======> zk rc stoped......");
     }
 
     @SneakyThrows
@@ -45,12 +47,14 @@ public class ZkRegistryCenter implements RegistryCenter {
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
             client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath);
+            log.info("======> service - {} registered to zk rc.", servicePath);
         }
 
         // 创建临时节点
         String instancePath = servicePath + "/" + instance;
         if (client.checkExists().forPath(instancePath) == null) {
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath);
+            log.info("======> instance - {} registered to zk rc.", instancePath);
         }
     }
 
@@ -66,6 +70,7 @@ public class ZkRegistryCenter implements RegistryCenter {
         // 创建临时节点
         String instancePath = servicePath + "/" + instance;
         client.delete().quietly().forPath(instancePath);
+        log.info("======> instance - {} unregistered from zk rc.", instancePath);
     }
 
     @SneakyThrows

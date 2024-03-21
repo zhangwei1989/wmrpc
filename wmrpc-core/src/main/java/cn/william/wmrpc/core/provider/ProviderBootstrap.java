@@ -33,6 +33,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     ApplicationContext context;
 
+    private RegistryCenter rc;
+
     @Value("${server.port}")
     private String port;
 
@@ -40,6 +42,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @PostConstruct
     public void buildProviders() {
+        rc = context.getBean(RegistryCenter.class);
         Map<String, Object> providers = context.getBeansWithAnnotation(WmProvider.class);
         providers.forEach((x, y) -> System.out.println(x));
 //        skeleton.putAll(providers);
@@ -49,8 +52,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @SneakyThrows
     public void start() {
-        RegistryCenter rc = context.getBean(RegistryCenter.class);
         String ip = InetAddress.getLocalHost().getHostAddress();
+        rc.start();
         skeleton.keySet().stream().forEach(service -> {
             rc.register(service, ip + ":" + port);
         });
@@ -64,6 +67,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
         skeleton.keySet().stream().forEach(service -> {
             rc.unregister(service, ip + ":" + port);
         });
+        rc.stop();
     }
 
     private void genInterface(Object x) {
