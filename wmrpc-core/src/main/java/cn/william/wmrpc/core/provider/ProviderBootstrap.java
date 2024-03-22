@@ -2,6 +2,7 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.utils.MethodUtils;
@@ -37,7 +38,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     private RegistryCenter rc;
 
     @Value("${server.port}")
-    private String port;
+    private Integer port;
 
     @Value("${wmrpc.app}")
     private String app;
@@ -50,6 +51,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @Value("${wmrpc.version}")
     private String version;
+
+    private InstanceMeta instanceMeta;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
@@ -66,6 +69,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @SneakyThrows
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
+        instanceMeta = InstanceMeta.builder().scheme("http").host(ip).port(port).build();
         rc.start();
         skeleton.keySet().stream().forEach(service -> {
             ServiceMeta serviceMeta = ServiceMeta.builder()
@@ -75,7 +79,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
                     .env(env)
                     .version(version)
                     .build();
-            rc.register(serviceMeta, ip + ":" + port);
+            rc.register(serviceMeta, instanceMeta);
         });
     }
 
@@ -83,7 +87,6 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @PreDestroy
     public void stop() {
         RegistryCenter rc = context.getBean(RegistryCenter.class);
-        String ip = InetAddress.getLocalHost().getHostAddress();
         skeleton.keySet().stream().forEach(service -> {
             ServiceMeta serviceMeta = ServiceMeta.builder()
                     .app(app)
@@ -92,7 +95,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
                     .env(env)
                     .version(version)
                     .build();
-            rc.unregister(serviceMeta, ip + ":" + port);
+            rc.unregister(serviceMeta, instanceMeta);
         });
         rc.stop();
     }

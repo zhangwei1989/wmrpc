@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.registry;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,7 @@ import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Description for this class.
@@ -43,7 +45,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @SneakyThrows
     @Override
-    public void register(ServiceMeta service, String instance) {
+    public void register(ServiceMeta service, InstanceMeta instance) {
         String servicePath = "/" + service.toPath();
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
@@ -52,7 +54,7 @@ public class ZkRegistryCenter implements RegistryCenter {
         }
 
         // 创建临时节点
-        String instancePath = servicePath + "/" + instance;
+        String instancePath = servicePath + "/" + instance.toPath();
         if (client.checkExists().forPath(instancePath) == null) {
             client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath);
             log.info("======> instance - {} registered to zk rc.", instancePath);
@@ -61,7 +63,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @SneakyThrows
     @Override
-    public void unregister(ServiceMeta service, String instance) {
+    public void unregister(ServiceMeta service, InstanceMeta instance) {
         String servicePath = "/" + service.toPath();
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
@@ -69,18 +71,19 @@ public class ZkRegistryCenter implements RegistryCenter {
         }
 
         // 创建临时节点
-        String instancePath = servicePath + "/" + instance;
+        String instancePath = servicePath + "/" + instance.toPath();
         client.delete().quietly().forPath(instancePath);
         log.info("======> instance - {} unregistered from zk rc.", instancePath);
     }
 
     @SneakyThrows
     @Override
-    public List<String> fetchAll(ServiceMeta service) {
+    public List<InstanceMeta> fetchAll(ServiceMeta service) {
         String servicePath = "/" + service.toPath();
         List<String> nodes = client.getChildren().forPath(servicePath);
 
-        return nodes;
+        return nodes.stream().map(n ->
+                InstanceMeta.builder().scheme("http").host(n.split("_")[0]).port(Integer.valueOf(n.split("_")[1])).context(n.split("_")[2]).build()).collect(Collectors.toList());
     }
 
     // consumer 订阅
@@ -96,7 +99,7 @@ public class ZkRegistryCenter implements RegistryCenter {
         cache.getListenable().addListener((curatorFramework, treeCacheEvent) -> {
             // 有任何变动，这里会执行
             log.info("======> TreeCache Event is {}", treeCacheEvent);
-            List<String> nodes = fetchAll(service);
+            List<InstanceMeta> nodes = fetchAll(service);
             listener.fire(new Event(nodes));
         });
     }

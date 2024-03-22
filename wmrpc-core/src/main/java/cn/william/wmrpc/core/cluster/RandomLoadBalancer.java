@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.cluster;
 
 import cn.william.wmrpc.core.api.LoadBalancer;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 
 import java.util.List;
 import java.util.Random;
@@ -11,12 +12,12 @@ import java.util.Random;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/18
  */
-public class RandomLoadBalancer implements LoadBalancer<String> {
+public class RandomLoadBalancer implements LoadBalancer<InstanceMeta> {
 
     Random random = new Random();
 
     @Override
-    public String choose(List<String> providers) {
+    public InstanceMeta choose(List<InstanceMeta> providers) {
         if (providers == null || providers.size() == 0) {
             return null;
         }

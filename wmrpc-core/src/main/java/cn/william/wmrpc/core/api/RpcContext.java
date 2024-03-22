@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.api;
 
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import lombok.Getter;
 
 /**
@@ -11,9 +12,9 @@ import lombok.Getter;
 @Getter
 public class RpcContext {
 
-    private Router router;
+    private Router<InstanceMeta> router;
 
-    private LoadBalancer loadBalancer;
+    private LoadBalancer<InstanceMeta> loadBalancer;
 
     public RpcContext(Router router, LoadBalancer loadBalancer) {
         this.router = router;

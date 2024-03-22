@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
@@ -73,12 +74,11 @@ public class ConsumerBootstrap implements ApplicationContextAware {
                                     .env(env)
                                     .version(version)
                                     .build();
-                            List<String> nodes = registryCenter.fetchAll(serviceMeta);
+                            List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
                             log.info("======> consumer fetchAll nodes are: ");
-                            nodes.stream().forEach(System.out::println);
-                            List<String> providers = mapUrls(nodes);
+                            providers.stream().forEach(System.out::println);
 
-                            subcribeToRC(serviceName, providers);
+                            subcribeToRC(serviceMeta, providers);
 
                             proxyService = createProxy(service, rpcContext, providers);
                         }
@@ -100,27 +100,15 @@ public class ConsumerBootstrap implements ApplicationContextAware {
         }
     }
 
-    private void subcribeToRC(String serviceName, List<String> providers) {
-        ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(app)
-                .namespace(namespace)
-                .name(serviceName)
-                .env(env)
-                .version(version)
-                .build();
-
+    private void subcribeToRC(ServiceMeta serviceMeta, List<InstanceMeta> providers) {
         registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();
-            providers.addAll(mapUrls(event.getData()));
+            providers.addAll(event.getData());
         });
     }
 
-    private List<String> mapUrls(List<String> nodes) {
-        return nodes.stream().map(x -> "http://" + x).collect(Collectors.toList());
-    }
-
     // 创建代理对象
-    private Object createProxy(Class<?> service, RpcContext rpcContext, List<String> providers) {
+    private Object createProxy(Class<?> service, RpcContext rpcContext, List<InstanceMeta> providers) {
         return Proxy.newProxyInstance(service.getClassLoader(), new Class<?>[]{service},
                 new WmConsumerInvocationHandler(service.getCanonicalName(), rpcContext, providers));
     }

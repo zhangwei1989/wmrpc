@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.api;
 
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.registry.ChangedListener;
 
@@ -17,20 +18,20 @@ public interface RegistryCenter {
 
     void stop();
 
-    void register(ServiceMeta service, String instance);
+    void register(ServiceMeta service, InstanceMeta instance);
 
-    void unregister(ServiceMeta service, String instance);
+    void unregister(ServiceMeta service, InstanceMeta instance);
 
-    List<String> fetchAll(ServiceMeta service);
+    List<InstanceMeta> fetchAll(ServiceMeta service);
 
     // consumer 订阅
     void subscribe(ServiceMeta service, ChangedListener listener);
 
     static class StaticRegistryCenter implements RegistryCenter {
 
-        List<String> providers;
+        List<InstanceMeta> providers;
 
-        public StaticRegistryCenter(List<String> providers) {
+        public StaticRegistryCenter(List<InstanceMeta> providers) {
             this.providers = providers;
         }
 
@@ -45,15 +46,15 @@ public interface RegistryCenter {
         }
 
         @Override
-        public void register(ServiceMeta service, String instance) {
+        public void register(ServiceMeta service, InstanceMeta instance) {
         }
 
         @Override
-        public void unregister(ServiceMeta service, String instance) {
+        public void unregister(ServiceMeta service, InstanceMeta instance) {
         }
 
         @Override
-        public List<String> fetchAll(ServiceMeta service) {
+        public List<InstanceMeta> fetchAll(ServiceMeta service) {
             return providers;
         }
 

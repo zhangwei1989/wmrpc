@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.client.OkHttpInvoker;
+import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import cn.william.wmrpc.core.utils.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +28,11 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
 
     private final String serviceName;
 
-    private List<String> providers;
+    private List<InstanceMeta> providers;
 
     private OkHttpInvoker okHttpInvoker = new OkHttpInvoker();
 
-    public WmConsumerInvocationHandler(String serviceName, RpcContext rpcContext, List<String> providers) {
+    public WmConsumerInvocationHandler(String serviceName, RpcContext rpcContext, List<InstanceMeta> providers) {
         /*if (WmConsumerInvocationHandler.applicationContext == null) {
             WmConsumerInvocationHandler.applicationContext = new AnnotationConfigApplicationContext();
         }*/
@@ -48,12 +49,12 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.getMethodSign(method));
         rpcRequest.setArgs(args);
 
-        List<String> ps = rpcContext.getRouter().route(providers);
-        String url = (String) rpcContext.getLoadBalancer().choose(ps);
+        List<InstanceMeta> instanceMetas = rpcContext.getRouter().route(providers);
+        InstanceMeta instance = rpcContext.getLoadBalancer().choose(instanceMetas);
 
-        log.info("==========> loadbalance choose url is {}", url);
+        log.info("==========> loadbalance choose url is {}", instance.http());
 
-        RpcResponse rpcResponse = okHttpInvoker.post(rpcRequest, url);
+        RpcResponse rpcResponse = okHttpInvoker.post(rpcRequest, instance.http());
 
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
