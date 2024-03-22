@@ -1,6 +1,9 @@
 package cn.william.wmrpc.core.utils;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
@@ -63,5 +66,24 @@ public class TypeUtils {
 
     public static boolean isLocalMethod(Method method) {
         return method.getDeclaringClass().equals(Object.class);
+    }
+
+    public static Object castMethodResult(Method method, Object data) {
+        if (data instanceof JSONObject) {
+            JSON dataJSON = (JSONObject) data;
+            return JSON.toJavaObject(dataJSON, method.getReturnType());
+        } else if (data instanceof JSONArray array) {
+            Object[] originArray = array.toArray();
+            Class<?> componentType = method.getReturnType().getComponentType();
+            Object result = Array.newInstance(componentType, originArray.length);
+
+            for (int i = 0; i < originArray.length; i++) {
+                Array.set(result, i, TypeUtils.cast(originArray[i], componentType));
+            }
+
+            return result;
+        } else {
+            return TypeUtils.cast(data, method.getReturnType());
+        }
     }
 }

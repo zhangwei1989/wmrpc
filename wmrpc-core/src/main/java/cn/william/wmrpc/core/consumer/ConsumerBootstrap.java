@@ -1,17 +1,15 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
-import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.LoadBalancer;
-import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.api.RpcContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.EnvironmentAware;
-import org.springframework.core.env.Environment;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
@@ -27,11 +25,9 @@ import java.util.stream.Collectors;
  * @Create : 2024/3/7 22:16
  */
 @Slf4j
-public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAware {
+public class ConsumerBootstrap implements ApplicationContextAware {
 
     private ApplicationContext context;
-
-    private Environment environment;
 
     @Autowired
     private RpcContext rpcContext;
@@ -111,8 +107,4 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         this.context = applicationContext;
     }
 
-    @Override
-    public void setEnvironment(Environment environment) {
-        this.environment = environment;
-    }
 }

@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.client.OkHttpInvoker;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.Router;
@@ -12,9 +13,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.core.env.Environment;
-
-import java.util.List;
 
 /**
  * Description for this class.
@@ -25,9 +23,6 @@ import java.util.List;
 @Configuration
 @Slf4j
 public class ConsumerConfig {
-
-    @Autowired
-    private Environment environment;
 
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
@@ -65,4 +60,10 @@ public class ConsumerConfig {
     RpcContext rpcContext(@Autowired Router router, @Autowired LoadBalancer loadBalancer) {
         return new RpcContext(router, loadBalancer);
     }
+
+    @Bean
+    OkHttpInvoker okHttpInvoker() {
+        return new OkHttpInvoker();
+    }
+
 }
