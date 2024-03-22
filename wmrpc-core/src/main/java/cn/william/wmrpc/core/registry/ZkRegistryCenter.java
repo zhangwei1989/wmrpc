@@ -10,6 +10,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,12 +26,18 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client;
 
+    @Value("${wmrpc.zk.url}")
+    private String url;
+
+    @Value("${wmrpc.zk.namespace}")
+    private String namespace;
+
     @Override
     public void start() {
         // 创建 ZK 客户端
         client = CuratorFrameworkFactory.builder()
-                .connectString("localhost:2181")
-                .namespace("wmrpc-rc")
+                .connectString(url)
+                .namespace(namespace)
                 .retryPolicy(new BoundedExponentialBackoffRetry(1000, 1000, 3))
                 .build();
         client.start();
