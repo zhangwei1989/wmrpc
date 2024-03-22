@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.registry;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -42,8 +43,8 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @SneakyThrows
     @Override
-    public void register(String service, String instance) {
-        String servicePath = "/" + service;
+    public void register(ServiceMeta service, String instance) {
+        String servicePath = "/" + service.toPath();
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
             client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath);
@@ -60,8 +61,8 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @SneakyThrows
     @Override
-    public void unregister(String service, String instance) {
-        String servicePath = "/" + service;
+    public void unregister(ServiceMeta service, String instance) {
+        String servicePath = "/" + service.toPath();
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
             return;
@@ -75,8 +76,8 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @SneakyThrows
     @Override
-    public List<String> fetchAll(String service) {
-        String servicePath = "/" + service;
+    public List<String> fetchAll(ServiceMeta service) {
+        String servicePath = "/" + service.toPath();
         List<String> nodes = client.getChildren().forPath(servicePath);
 
         return nodes;
@@ -85,8 +86,8 @@ public class ZkRegistryCenter implements RegistryCenter {
     // consumer 订阅
     @SneakyThrows
     @Override
-    public void subscribe(String service, ChangedListener listener) {
-        String servicePath = "/" + service;
+    public void subscribe(ServiceMeta service, ChangedListener listener) {
+        String servicePath = "/" + service.toPath();
         final TreeCache cache = TreeCache.newBuilder(client, servicePath)
                 .setMaxDepth(2)
                 .setCacheData(true)

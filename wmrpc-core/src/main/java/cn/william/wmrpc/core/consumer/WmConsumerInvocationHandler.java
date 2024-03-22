@@ -7,8 +7,6 @@ import cn.william.wmrpc.core.client.OkHttpInvoker;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import cn.william.wmrpc.core.utils.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;

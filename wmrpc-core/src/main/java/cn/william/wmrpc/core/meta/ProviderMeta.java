@@ -1,4 +1,4 @@
-package cn.william.wmrpc.core.provider;
+package cn.william.wmrpc.core.meta;
 
 import lombok.Data;
 

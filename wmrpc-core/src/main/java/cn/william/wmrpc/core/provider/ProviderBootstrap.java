@@ -2,6 +2,8 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.meta.ProviderMeta;
+import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -37,6 +39,18 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${server.port}")
     private String port;
 
+    @Value("${wmrpc.app}")
+    private String app;
+
+    @Value("${wmrpc.namespace}")
+    private String namespace;
+
+    @Value("${wmrpc.env}")
+    private String env;
+
+    @Value("${wmrpc.version}")
+    private String version;
+
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @PostConstruct
@@ -54,7 +68,14 @@ public class ProviderBootstrap implements ApplicationContextAware {
         String ip = InetAddress.getLocalHost().getHostAddress();
         rc.start();
         skeleton.keySet().stream().forEach(service -> {
-            rc.register(service, ip + ":" + port);
+            ServiceMeta serviceMeta = ServiceMeta.builder()
+                    .app(app)
+                    .namespace(namespace)
+                    .name(service)
+                    .env(env)
+                    .version(version)
+                    .build();
+            rc.register(serviceMeta, ip + ":" + port);
         });
     }
 
@@ -64,7 +85,14 @@ public class ProviderBootstrap implements ApplicationContextAware {
         RegistryCenter rc = context.getBean(RegistryCenter.class);
         String ip = InetAddress.getLocalHost().getHostAddress();
         skeleton.keySet().stream().forEach(service -> {
-            rc.unregister(service, ip + ":" + port);
+            ServiceMeta serviceMeta = ServiceMeta.builder()
+                    .app(app)
+                    .namespace(namespace)
+                    .name(service)
+                    .env(env)
+                    .version(version)
+                    .build();
+            rc.unregister(serviceMeta, ip + ":" + port);
         });
         rc.stop();
     }

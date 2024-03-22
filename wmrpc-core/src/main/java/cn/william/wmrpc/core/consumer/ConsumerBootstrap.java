@@ -1,13 +1,13 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
-import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -35,9 +35,17 @@ public class ConsumerBootstrap implements ApplicationContextAware {
     @Autowired
     private RegistryCenter registryCenter;
 
-    private Router router;
+    @Value("${wmrpc.app}")
+    private String app;
 
-    private LoadBalancer loadBalancer;
+    @Value("${wmrpc.namespace}")
+    private String namespace;
+
+    @Value("${wmrpc.env}")
+    private String env;
+
+    @Value("${wmrpc.version}")
+    private String version;
 
     private Map<String, Object> stub = new HashMap<>();
 
@@ -58,7 +66,14 @@ public class ConsumerBootstrap implements ApplicationContextAware {
                         Object proxyService = stub.get(serviceName);
 
                         if (proxyService == null) {
-                            List<String> nodes = registryCenter.fetchAll(serviceName);
+                            ServiceMeta serviceMeta = ServiceMeta.builder()
+                                    .app(app)
+                                    .namespace(namespace)
+                                    .name(serviceName)
+                                    .env(env)
+                                    .version(version)
+                                    .build();
+                            List<String> nodes = registryCenter.fetchAll(serviceMeta);
                             log.info("======> consumer fetchAll nodes are: ");
                             nodes.stream().forEach(System.out::println);
                             List<String> providers = mapUrls(nodes);
@@ -86,7 +101,15 @@ public class ConsumerBootstrap implements ApplicationContextAware {
     }
 
     private void subcribeToRC(String serviceName, List<String> providers) {
-        registryCenter.subscribe(serviceName, event -> {
+        ServiceMeta serviceMeta = ServiceMeta.builder()
+                .app(app)
+                .namespace(namespace)
+                .name(serviceName)
+                .env(env)
+                .version(version)
+                .build();
+
+        registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(mapUrls(event.getData()));
         });

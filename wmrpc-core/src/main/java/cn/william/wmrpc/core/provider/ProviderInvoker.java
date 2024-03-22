@@ -2,6 +2,7 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.utils.MethodUtils;
 import cn.william.wmrpc.core.utils.TypeUtils;
 import org.springframework.util.MultiValueMap;
