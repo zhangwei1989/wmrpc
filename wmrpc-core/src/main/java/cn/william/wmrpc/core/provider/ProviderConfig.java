@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
 import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,6 +19,11 @@ public class ProviderConfig {
     @Bean
     ProviderBootstrap providerBootstrap() {
         return new ProviderBootstrap();
+    }
+
+    @Bean
+    ProviderInvoker providerInvoker(@Autowired ProviderBootstrap providerBootstrap) {
+        return new ProviderInvoker(providerBootstrap);
     }
 
     @Bean

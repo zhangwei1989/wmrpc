@@ -5,6 +5,7 @@ import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.provider.ProviderBootstrap;
 import cn.william.wmrpc.core.provider.ProviderConfig;
+import cn.william.wmrpc.core.provider.ProviderInvoker;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -28,12 +29,12 @@ import java.util.Map;
 public class WmrpcDemoProviderApplication {
 
     @Autowired
-    ProviderBootstrap providerBootstrap;
+    ProviderInvoker providerInvoker;
 
     // 使用 HTTP + JSON 来实现网络通信和序列化
     @RequestMapping("/")
     public RpcResponse invoke(@RequestBody RpcRequest request) {
-        return providerBootstrap.invoke(request);
+        return providerInvoker.invoke(request);
     }
 
     @Bean
@@ -45,7 +46,7 @@ public class WmrpcDemoProviderApplication {
             request.setMethodSign("findById@1_int");
             request.setArgs(new Object[]{100});
 
-            RpcResponse response = providerBootstrap.invoke(request);
+            RpcResponse response = providerInvoker.invoke(request);
             System.out.println("response: " + response.getData());
 
             // test 2 parameters method
@@ -54,7 +55,7 @@ public class WmrpcDemoProviderApplication {
             request1.setMethodSign("findById@2_int_java.lang.String");
             request1.setArgs(new Object[]{100, "CC"});
 
-            RpcResponse response1 = providerBootstrap.invoke(request1);
+            RpcResponse response1 = providerInvoker.invoke(request1);
             System.out.println("response1: " + response1.getData());
         };
     }
