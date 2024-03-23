@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.consumer.http;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.concurrent.TimeUnit;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/20
  */
+@Slf4j
 public class OkHttpInvoker implements HttpInvoker {
 
     OkHttpClient client;
@@ -32,7 +34,7 @@ public class OkHttpInvoker implements HttpInvoker {
     @Override
     public RpcResponse<?> post(RpcRequest rpcRequest, String url) {
         String reqJson = JSON.toJSONString(rpcRequest);
-        System.out.println("===> reqJSON: " + reqJson);
+        log.info("===> reqJSON: " + reqJson);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -40,7 +42,7 @@ public class OkHttpInvoker implements HttpInvoker {
                 .build();
         try {
             String respJson = client.newCall(request).execute().body().string();
-            System.out.println("===> respJSON: " + respJson);
+            log.info("===> respJSON: " + respJson);
             RpcResponse rpcResponse = JSON.parseObject(respJson, RpcResponse.class);
             return rpcResponse;
         } catch (IOException e) {

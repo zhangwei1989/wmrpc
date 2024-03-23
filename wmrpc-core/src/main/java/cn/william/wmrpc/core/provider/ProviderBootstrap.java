@@ -59,7 +59,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void init() {
         rc = context.getBean(RegistryCenter.class);
         Map<String, Object> providers = context.getBeansWithAnnotation(WmProvider.class);
-        providers.forEach((x, y) -> System.out.println(x));
+        providers.forEach((x, y) -> log.info(x));
         providers.values().forEach(this::genInterface);
     }
 
