@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.api;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Description for this class.
@@ -9,6 +10,7 @@ import lombok.Data;
  * @Create : 2024/3/7
  */
 @Data
+@ToString
 public class RpcRequest {
 
     private String service;  // 接口：cn.william.wmrpc.demo.api.UserService

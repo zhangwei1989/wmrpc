@@ -1,9 +1,11 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.Filter;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
+import cn.william.wmrpc.core.filter.CacheFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,11 @@ public class ConsumerConfig {
     @Bean
     public Router<InstanceMeta> loadRouter() {
         return Router.Default;
+    }
+
+    @Bean
+    public Filter loadFilter() {
+        return new CacheFilter();
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")

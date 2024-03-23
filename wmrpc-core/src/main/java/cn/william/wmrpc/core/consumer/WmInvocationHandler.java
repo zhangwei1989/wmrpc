@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.Filter;
 import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
@@ -9,6 +10,7 @@ import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -49,13 +51,36 @@ public class WmInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
+        for (Filter filter : this.context.getFilters()) {
+            Object preResult = filter.prefilter(rpcRequest);
+            if (preResult != null) {
+                log.info(filter.getClass().getName() + " ======> prefilter: " + preResult);
+                return preResult;
+            }
+        }
+
         List<InstanceMeta> instances = context.getRouter().route(providers);
         InstanceMeta instance = context.getLoadBalancer().choose(instances);
 
         log.info("loadBalancer.choose(urls) ==> {}", instance);
-        RpcResponse rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
+        RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
+
+        Object result = castResponseToReturnResult(method, rpcResponse);
+
+        // 这里拿到的可能不是最终值
+        for (Filter filter : this.context.getFilters()) {
+            Object filterResult = filter.postfilter(rpcRequest, rpcResponse, result);
+
+            if (filterResult != null) {
+                return filterResult;
+            }
+        }
 
         // TODO 处理基本类型
+        return result;
+    }
+
+    private static Object castResponseToReturnResult(Method method, RpcResponse<?> rpcResponse) {
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             return TypeUtils.castMethodResult(method, data);

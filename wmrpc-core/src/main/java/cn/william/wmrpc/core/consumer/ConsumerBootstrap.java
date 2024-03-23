@@ -1,10 +1,7 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
-import cn.william.wmrpc.core.api.LoadBalancer;
-import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.api.Router;
-import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
@@ -52,10 +49,12 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
         Router<InstanceMeta> router = applicationContext.getBean(Router.class);
         LoadBalancer<InstanceMeta> loadBalancer = applicationContext.getBean(LoadBalancer.class);
         RegistryCenter rc = applicationContext.getBean(RegistryCenter.class);
+        List<Filter> filters = applicationContext.getBeansOfType(Filter.class).values().stream().toList();
 
         RpcContext context = new RpcContext();
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
+        context.setFilters(filters);
 
         String[] names = applicationContext.getBeanDefinitionNames();
         for (String name : names) {
