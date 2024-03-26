@@ -7,14 +7,11 @@
         <artifactId>wmrpc</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>cn.william</groupId>
     <artifactId>wmrpc-core</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>wmrpc-core</name>
     <description>wmrpc-core</description>
-    <properties>
-        <java.version>17</java.version>
-    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
