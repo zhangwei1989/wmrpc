@@ -3,9 +3,7 @@ package cn.william.wmrpc.demo.provider;
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.stereotype.Component;
 import org.springframework.core.env.Environment;
 
