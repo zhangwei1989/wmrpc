@@ -6,6 +6,7 @@ import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.filter.CacheFilter;
+import cn.william.wmrpc.core.filter.MockFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +56,11 @@ public class ConsumerConfig {
     public Filter loadFilter() {
         return new CacheFilter();
     }
+
+//    @Bean
+//    public Filter loadFilter() {
+//        return new MockFilter();
+//    }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public RegistryCenter consumer_rc() {

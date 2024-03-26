@@ -61,8 +61,8 @@ public class WmrpcDemoConsumerApplication {
             userService.getId(1000);
             userService.getName();
 
-            Order order = orderService.findById(2);
-            System.out.println("RPC result orderService.findById(2) = " + order);
+//            Order order = orderService.findById(2);
+//            System.out.println("RPC result orderService.findById(2) = " + order);
 
 //            Order order404 = orderService.findById(404);
 //            System.out.println("RPC result orderService.findById(404) " + order404);
@@ -80,11 +80,11 @@ public class WmrpcDemoConsumerApplication {
             // 验证方法重载
             log.info("=============> userService.getId(1), the result is {}", userService.getId(1));
             // 验证方法返回数组
-            log.info("=============> userService.getIds(), the result is {}", Arrays.toString(userService.getIds()));
+//            log.info("=============> userService.getIds(), the result is {}", Arrays.toString(userService.getIds()));
             // 验证方法返回数组
-            log.info("=============> userService.getLongIds(), the result is {}", Arrays.toString(userService.getLongIds()));
+//            log.info("=============> userService.getLongIds(), the result is {}", Arrays.toString(userService.getLongIds()));
             // 验证方法返回数组
-            log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", Arrays.toString(userService.getIds(new int[]{4,5,6})));
+//            log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", Arrays.toString(userService.getIds(new int[]{4,5,6})));
         };
     }
 }

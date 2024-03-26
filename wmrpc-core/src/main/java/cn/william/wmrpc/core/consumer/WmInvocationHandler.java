@@ -54,7 +54,7 @@ public class WmInvocationHandler implements InvocationHandler {
         for (Filter filter : this.context.getFilters()) {
             Object preResult = filter.prefilter(rpcRequest);
             if (preResult != null) {
-                log.info(filter.getClass().getName() + " ======> prefilter: " + preResult);
+                log.debug(filter.getClass().getName() + " ======> prefilter: " + preResult);
                 return preResult;
             }
         }
