@@ -4,8 +4,8 @@ import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.core.env.Environment;
+import org.springframework.stereotype.Component;
 
 @Component
 @WmProvider
@@ -67,17 +67,9 @@ public class UserServiceImpl implements UserService {
         return "Cola-" + id;
     }
 
+    @Override
     public User find(int timeout) {
-        String port = environment.getProperty("server.port");
-        if ("8081".equals(port)) {
-            try {
-                Thread.sleep(timeout);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        return new User(101, "Wm101");
+        return null;
     }
-
 
 }

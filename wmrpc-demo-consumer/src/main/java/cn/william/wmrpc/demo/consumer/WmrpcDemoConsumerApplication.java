@@ -43,6 +43,10 @@ public class WmrpcDemoConsumerApplication {
     @Bean
      public ApplicationRunner consumer_runner() {
         return x -> {
+            long start = System.currentTimeMillis();
+//            this.userService.find(800);
+            System.out.println("userService.find take " + (System.currentTimeMillis() - start) + "ms");
+
             log.warn("=============> userService.getId(10f);, the result is {}", userService.getId(10f));
 
             log.warn("=============> userService.getId(1000);, the result is {}", userService.getId(1000));

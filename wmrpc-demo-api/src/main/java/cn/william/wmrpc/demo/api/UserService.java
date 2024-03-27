@@ -21,4 +21,6 @@ public interface UserService {
     String getName();
 
     String getName(int id);
+
+    User find(int timeout);
 }

@@ -24,7 +24,7 @@ class WmrpcDemoConsumerApplicationTests {
 
     @AfterAll
     static void stop() {
-        SpringApplication.exit(context, x -> 1);
+        SpringApplication.exit(context);
     }
 
 }
