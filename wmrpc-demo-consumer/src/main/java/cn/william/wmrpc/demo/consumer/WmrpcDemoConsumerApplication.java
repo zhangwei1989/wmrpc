@@ -28,8 +28,8 @@ public class WmrpcDemoConsumerApplication {
     @WmConsumer
     private UserService userService;
 
-    @WmConsumer
-    private OrderService orderService;
+//    @WmConsumer
+//    private OrderService orderService;
 
     @RequestMapping("/")
     public User findById(int id) {
@@ -59,7 +59,7 @@ public class WmrpcDemoConsumerApplication {
 //                log.warn("=============> userService.findById(100), the result is {}", userService.findById(100));
 //                // 验证重载方法
 //                log.warn("=============> userService.findById(100, \"WM\"), the result is {}", userService.findById(100, "WM"));
-//            // 验证捕获 provider 异常
+//                // 验证捕获 provider 异常
 ////                log.info("=============> userService.findById(404), the result is {}", userService.findById(404));
 //                // 验证基本类型
 //                log.info("=============> userService.getName(), the result is {}", userService.getName());
