@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.Filter;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.filter.CacheFilter;
 import cn.william.wmrpc.core.filter.MockFilter;
@@ -44,7 +45,7 @@ public class ConsumerConfig {
     @Bean
     public LoadBalancer<InstanceMeta> loadBalancer() {
 //        return LoadBalancer.Default;
-        return new RoundRibonLoadBalancer();
+        return new RandomLoadBalancer<>();
     }
 
     @Bean
@@ -52,10 +53,15 @@ public class ConsumerConfig {
         return Router.Default;
     }
 
-    @Bean
-    public Filter loadFilter() {
-        return new CacheFilter();
-    }
+//    @Bean
+//    public Filter loadFilter() {
+//        return Filter.Default;
+//    }
+
+//    @Bean
+//    public Filter loadFilter() {
+//        return new CacheFilter();
+//    }
 
 //    @Bean
 //    public Filter loadFilter() {

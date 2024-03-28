@@ -11,7 +11,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Description for this class.
@@ -36,47 +38,52 @@ public class WmrpcDemoConsumerApplication {
         return userService.findById(id);
     }
 
+    @RequestMapping("/find/")
+    public User find(@RequestParam("timeout") int timeout) {
+        return userService.find(timeout);
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(WmrpcDemoConsumerApplication.class, args);
     }
 
     @Bean
-     public ApplicationRunner consumer_runner() {
+    public ApplicationRunner consumer_runner() {
         return x -> {
             long start = System.currentTimeMillis();
-//            this.userService.find(800);
+            this.userService.find(1200);
             System.out.println("userService.find take " + (System.currentTimeMillis() - start) + "ms");
 
-            log.warn("=============> userService.getId(10f);, the result is {}", userService.getId(10f));
-
-            log.warn("=============> userService.getId(1000);, the result is {}", userService.getId(1000));
-
-            log.warn("=============> userService.getId(new User(100, \"WM\");, the result is {}", userService.getId(new User(100, "WM")));
-            User user = userService.findById(1);
-            System.out.println("RPC result userService.findById(1) = " + user);
-
-            // 解决让这个不报错
-            userService.getId(1000);
-            userService.getName();
-
-//            Order order = orderService.findById(2);
-//            System.out.println("RPC result orderService.findById(2) = " + order);
-
-//            Order order404 = orderService.findById(404);
-//            System.out.println("RPC result orderService.findById(404) " + order404);
-
-            // 验证基本调用
-            log.info("=============> userService.findById(100), the result is {}", userService.findById(100));
-            // 验证重载方法
-            log.info("=============> userService.findById(100, \"WM\"), the result is {}", userService.findById(100, "WM"));
+//            log.warn("=============> userService.getId(10f);, the result is {}", userService.getId(10f));
+//
+//            log.warn("=============> userService.getId(1000);, the result is {}", userService.getId(1000));
+//
+//            log.warn("=============> userService.getId(new User(100, \"WM\");, the result is {}", userService.getId(new User(100, "WM")));
+//            User user = userService.findById(1);
+//            System.out.println("RPC result userService.findById(1) = " + user);
+//
+//            // 解决让这个不报错
+//            userService.getId(1000);
+//            userService.getName();
+//
+////            Order order = orderService.findById(2);
+////            System.out.println("RPC result orderService.findById(2) = " + order);
+//
+////            Order order404 = orderService.findById(404);
+////            System.out.println("RPC result orderService.findById(404) " + order404);
+//
+//            // 验证基本调用
+//            log.info("=============> userService.findById(100), the result is {}", userService.findById(100));
+//            // 验证重载方法
+//            log.info("=============> userService.findById(100, \"WM\"), the result is {}", userService.findById(100, "WM"));
 //            // 验证捕获 provider 异常
 ////                log.info("=============> userService.findById(404), the result is {}", userService.findById(404));
-            // 验证基本类型
-            log.info("=============> userService.getName(), the result is {}", userService.getName());
-            // 验证方法重载
-            log.info("=============> userService.getName(1), the result is {}", userService.getName(123));
-            // 验证方法重载
-            log.info("=============> userService.getId(1), the result is {}", userService.getId(1));
+//            // 验证基本类型
+//            log.info("=============> userService.getName(), the result is {}", userService.getName());
+//            // 验证方法重载
+//            log.info("=============> userService.getName(1), the result is {}", userService.getName(123));
+//            // 验证方法重载
+//            log.info("=============> userService.getId(1), the result is {}", userService.getId(1));
             // 验证方法返回数组
 //            log.info("=============> userService.getIds(), the result is {}", Arrays.toString(userService.getIds()));
             // 验证方法返回数组

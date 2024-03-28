@@ -76,8 +76,7 @@ public class UserServiceImpl implements UserService {
                 throw new RuntimeException(e);
             }
         }
-        return new User(101, "Wm101");
+        return new User(101, "Wm101-" + port);
     }
-
 
 }
