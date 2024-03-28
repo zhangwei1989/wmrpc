@@ -1,7 +1,7 @@
 package cn.william.wmrpc.core.registry.zk;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.api.WmrpcException;
+import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.registry.ChangedListener;
@@ -69,7 +69,7 @@ public class ZkRegistryCenter implements RegistryCenter {
                 client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
             }
         } catch (Exception e) {
-            throw new WmrpcException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -86,7 +86,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             log.info("======> delete from zk: {}", instancePath);
             client.delete().quietly().forPath(instancePath);
         } catch (Exception e) {
-            throw new WmrpcException(e);
+            throw new RpcException(e);
         }
     }
 
@@ -105,7 +105,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             }).collect(Collectors.toList());
             return providers;
         } catch (Exception e) {
-            throw new WmrpcException(e);
+            throw new RpcException(e);
         }
     }
 

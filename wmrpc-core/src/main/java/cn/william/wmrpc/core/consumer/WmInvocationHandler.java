@@ -7,7 +7,6 @@ import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -83,10 +82,10 @@ public class WmInvocationHandler implements InvocationHandler {
             return TypeUtils.castMethodResult(method, data);
         } else {
             Exception ex = rpcResponse.getEx();
-            if (ex instanceof WmrpcException exception) {
+            if (ex instanceof RpcException exception) {
                 throw exception;
             } else {
-                throw new WmrpcException(ex, WmrpcException.NoSuchMethodEx);
+                throw new RpcException(ex, RpcException.NoSuchMethodEx);
             }
         }
     }

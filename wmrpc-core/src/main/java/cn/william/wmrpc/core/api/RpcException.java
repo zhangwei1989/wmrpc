@@ -3,32 +3,32 @@ package cn.william.wmrpc.core.api;
 import lombok.Data;
 
 /**
- * Description for this class.
+ * RPC统一异常类
  *
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/27
  */
 @Data
-public class WmrpcException extends RuntimeException {
+public class RpcException extends RuntimeException {
 
     private String errcode;
 
-    public WmrpcException() {
+    public RpcException() {
     }
 
-    public WmrpcException(String message) {
+    public RpcException(String message) {
         super(message);
     }
 
-    public WmrpcException(String message, Throwable cause) {
+    public RpcException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public WmrpcException(Throwable cause) {
+    public RpcException(Throwable cause) {
         super(cause);
     }
 
-    public WmrpcException(Throwable cause, String errcode) {
+    public RpcException(Throwable cause, String errcode) {
         super(cause);
         this.errcode = errcode;
     }
