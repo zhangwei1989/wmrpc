@@ -2,6 +2,7 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.api.WmrpcException;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.util.TypeUtils;
 import org.springframework.util.MultiValueMap;
@@ -36,9 +37,9 @@ public class ProviderInvoker {
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
         } catch (InvocationTargetException e) {
-            rpcResponse.setEx(new RuntimeException(e.getTargetException().getMessage()));
+            rpcResponse.setEx(new WmrpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
-            rpcResponse.setEx(new RuntimeException(e.getMessage()));
+            rpcResponse.setEx(new WmrpcException(e.getMessage()));
         }
 
         return rpcResponse;

@@ -1,9 +1,6 @@
 package cn.william.wmrpc.core.consumer;
 
-import cn.william.wmrpc.core.api.Filter;
-import cn.william.wmrpc.core.api.RpcContext;
-import cn.william.wmrpc.core.api.RpcRequest;
-import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.consumer.http.HttpInvoker;
 import cn.william.wmrpc.core.consumer.http.OkHttpInvoker;
 import cn.william.wmrpc.core.meta.InstanceMeta;
@@ -86,8 +83,11 @@ public class WmInvocationHandler implements InvocationHandler {
             return TypeUtils.castMethodResult(method, data);
         } else {
             Exception ex = rpcResponse.getEx();
-            ex.printStackTrace();
-            throw new RuntimeException(ex);
+            if (ex instanceof WmrpcException exception) {
+                throw exception;
+            } else {
+                throw new WmrpcException(ex, WmrpcException.NoSuchMethodEx);
+            }
         }
     }
 
