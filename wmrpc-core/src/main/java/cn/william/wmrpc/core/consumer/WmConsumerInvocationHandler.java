@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.client.OkHttpInvoker;
@@ -61,8 +62,8 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
             return TypeUtils.castMethodResult(method, data);
         } else {
             Exception ex = rpcResponse.getException();
-            ex.printStackTrace();
-            throw new RuntimeException(ex);
+
+            throw ex;
         }
     }
 

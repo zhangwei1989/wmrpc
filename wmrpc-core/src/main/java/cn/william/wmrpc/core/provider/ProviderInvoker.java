@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.provider;
 
+import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.meta.ProviderMeta;
@@ -41,9 +42,9 @@ public class ProviderInvoker {
             response.setStatus(true);
             response.setData(result);
         } catch (InvocationTargetException e) {
-            response.setException(new RuntimeException(e.getTargetException().getMessage()));
+            response.setException(new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
-            response.setException(new RuntimeException(e.getMessage()));
+            response.setException(new RpcException(e.getMessage()));
         }
 
         return response;
