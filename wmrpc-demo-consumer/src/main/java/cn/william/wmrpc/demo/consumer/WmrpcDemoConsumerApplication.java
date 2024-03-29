@@ -1,10 +1,7 @@
 package cn.william.wmrpc.demo.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
-import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.consumer.ConsumerConfig;
-import cn.william.wmrpc.demo.api.Order;
-import cn.william.wmrpc.demo.api.OrderService;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +12,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @SpringBootApplication
 @RestController
@@ -34,6 +35,14 @@ public class WmrpcDemoConsumerApplication {
     @RequestMapping("/")
     public User findById(int id) {
         return userService.findById(id);
+    }
+
+    @RequestMapping("/find/")
+    public User find(@RequestParam("timeout") int timeout) {
+        long start = System.currentTimeMillis();
+        User user = userService.find(timeout);
+        log.info("======> userService.find(timeout) cost: {}ms", System.currentTimeMillis() - start);
+        return user;
     }
 
     @Bean

@@ -19,9 +19,9 @@ import java.util.concurrent.TimeUnit;
 public class OkHttpInvoker implements HttpInvoker {
 
     private final OkHttpClient client = new OkHttpClient().newBuilder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
+            .connectTimeout(1, TimeUnit.SECONDS)
+            .readTimeout(1, TimeUnit.SECONDS)
+            .writeTimeout(1, TimeUnit.SECONDS)
             .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
             .build();
 
@@ -43,7 +43,7 @@ public class OkHttpInvoker implements HttpInvoker {
             String responseJSON = response.body().string();
             log.info("=============> responseJSON: {}", responseJSON);
             return JSON.parseObject(responseJSON, RpcResponse.class);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         }

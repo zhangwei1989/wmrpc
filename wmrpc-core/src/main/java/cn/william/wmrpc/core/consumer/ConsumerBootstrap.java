@@ -17,7 +17,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Description for this class.
@@ -48,10 +47,15 @@ public class ConsumerBootstrap implements ApplicationContextAware {
     @Value("${wmrpc.version}")
     private String version;
 
+    @Value("${wmrpc.retries}")
+    private int retries;
+
     private Map<String, Object> stub = new HashMap<>();
 
     public void start() {
         String[] names = context.getBeanDefinitionNames();
+        // 配置存入 rpcContext 中
+        rpcContext.getParameters().put("wmrpc.retires", String.valueOf(retries));
 
         for (String name : names) {
             Object bean = context.getBean(name);

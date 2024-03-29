@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
 /**
@@ -50,21 +51,34 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.getMethodSign(method));
         rpcRequest.setArgs(args);
 
-        List<InstanceMeta> instanceMetas = rpcContext.getRouter().route(providers);
-        InstanceMeta instance = rpcContext.getLoadBalancer().choose(instanceMetas);
+        int retries = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("wmrpc.retires", "1"));
 
-        log.info("==========> loadbalance choose url is {}", instance.http());
+        while (retries -- > 0) {
+            try {
+                log.info("======> retries: {}", retries);
+                List<InstanceMeta> instanceMetas = rpcContext.getRouter().route(providers);
+                InstanceMeta instance = rpcContext.getLoadBalancer().choose(instanceMetas);
 
-        RpcResponse rpcResponse = okHttpInvoker.post(rpcRequest, instance.http());
+                log.info("==========> loadbalance choose url is {}", instance.http());
 
-        if (rpcResponse.isStatus()) {
-            Object data = rpcResponse.getData();
-            return TypeUtils.castMethodResult(method, data);
-        } else {
-            Exception ex = rpcResponse.getException();
+                RpcResponse rpcResponse = okHttpInvoker.post(rpcRequest, instance.http());
 
-            throw ex;
+                if (rpcResponse.isStatus()) {
+                    Object data = rpcResponse.getData();
+                    return TypeUtils.castMethodResult(method, data);
+                } else {
+                    Exception ex = rpcResponse.getException();
+                    throw ex;
+                }
+            } catch (Exception ex) {
+                if (!(ex.getCause() instanceof SocketTimeoutException)) {
+                    throw ex;
+                }
+            }
         }
+
+        return null;
     }
 
 }

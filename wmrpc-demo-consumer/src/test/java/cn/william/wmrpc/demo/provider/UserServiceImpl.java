@@ -74,4 +74,9 @@ public class UserServiceImpl implements UserService {
         return map;
     }
 
+    @Override
+    public User find(int timeout) {
+        return null;
+    }
+
 }

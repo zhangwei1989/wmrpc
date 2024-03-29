@@ -1,11 +1,11 @@
 package cn.william.wmrpc.core.consumer;
 
+import cn.william.wmrpc.core.api.LoadBalancer;
+import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.client.OkHttpInvoker;
-import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
-import cn.william.wmrpc.core.api.LoadBalancer;
-import cn.william.wmrpc.core.api.Router;
-import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +43,7 @@ public class ConsumerConfig {
     @Bean
     LoadBalancer consumser_lb() {
 //        return LoadBalancer.Default;
-        return new RoundRibbonLoadBalancer();
+        return new RandomLoadBalancer();
     }
 
     @Bean

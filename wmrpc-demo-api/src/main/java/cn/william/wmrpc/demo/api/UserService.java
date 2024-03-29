@@ -27,4 +27,6 @@ public interface UserService {
 
     // 自定义扩展：参数和返回值里，map 里面有数组，数组里面有 User
     Map<String, List> getMutipleUser(Map<String, List> map);
+
+    User find(int timeout);
 }

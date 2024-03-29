@@ -3,6 +3,9 @@ package cn.william.wmrpc.core.api;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Description for this class.
  *
@@ -15,6 +18,8 @@ public class RpcContext {
     private Router<InstanceMeta> router;
 
     private LoadBalancer<InstanceMeta> loadBalancer;
+
+    private Map<String, String> parameters = new HashMap<>();
 
     public RpcContext(Router router, LoadBalancer loadBalancer) {
         this.router = router;
