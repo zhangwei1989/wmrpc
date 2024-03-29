@@ -61,9 +61,4 @@ public class ConsumerConfig {
         return new RpcContext(router, loadBalancer);
     }
 
-    @Bean
-    OkHttpInvoker okHttpInvoker() {
-        return new OkHttpInvoker();
-    }
-
 }

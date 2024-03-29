@@ -18,12 +18,16 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class OkHttpInvoker implements HttpInvoker {
 
-    private final OkHttpClient client = new OkHttpClient().newBuilder()
-            .connectTimeout(1, TimeUnit.SECONDS)
-            .readTimeout(1, TimeUnit.SECONDS)
-            .writeTimeout(1, TimeUnit.SECONDS)
-            .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
-            .build();
+    private final OkHttpClient client;
+
+    public OkHttpInvoker(int timeout) {
+        client = new OkHttpClient().newBuilder()
+                .connectTimeout(timeout, TimeUnit.MILLISECONDS)
+                .readTimeout(timeout, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeout, TimeUnit.MILLISECONDS)
+                .connectionPool(new ConnectionPool(16, 60, TimeUnit.SECONDS))
+                .build();
+    }
 
     private final MediaType MEDIA_TYPE_JSON = MediaType.get("application/json");
 

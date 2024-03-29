@@ -32,7 +32,7 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
 
     private List<InstanceMeta> providers;
 
-    private OkHttpInvoker okHttpInvoker = new OkHttpInvoker();
+    private OkHttpInvoker okHttpInvoker;
 
     public WmConsumerInvocationHandler(String serviceName, RpcContext rpcContext, List<InstanceMeta> providers) {
         /*if (WmConsumerInvocationHandler.applicationContext == null) {
@@ -41,6 +41,8 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         this.serviceName = serviceName;
         this.rpcContext = rpcContext;
         this.providers = providers;
+        okHttpInvoker = new OkHttpInvoker(
+                Integer.parseInt(rpcContext.getParameters().getOrDefault("wmrpc.timeout", "1000")));
     }
 
     @Override

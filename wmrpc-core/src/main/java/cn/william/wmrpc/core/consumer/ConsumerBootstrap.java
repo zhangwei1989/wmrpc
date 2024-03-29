@@ -50,12 +50,16 @@ public class ConsumerBootstrap implements ApplicationContextAware {
     @Value("${wmrpc.retries}")
     private int retries;
 
+    @Value("${wmrpc.timeout}")
+    private int timeout;
+
     private Map<String, Object> stub = new HashMap<>();
 
     public void start() {
         String[] names = context.getBeanDefinitionNames();
         // 配置存入 rpcContext 中
         rpcContext.getParameters().put("wmrpc.retires", String.valueOf(retries));
+        rpcContext.getParameters().put("wmrpc.timeout", String.valueOf(timeout));
 
         for (String name : names) {
             Object bean = context.getBean(name);
