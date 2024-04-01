@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.consumer.http.HttpInvoker;
 import cn.william.wmrpc.core.consumer.http.OkHttpInvoker;
+import cn.william.wmrpc.core.governance.SlidingTimeWindow;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
 import cn.william.wmrpc.core.util.TypeUtils;
@@ -11,7 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 消费端动态代理类
@@ -26,9 +33,17 @@ public class WmInvocationHandler implements InvocationHandler {
 
     RpcContext context;
 
-    List<InstanceMeta> providers;
+    final List<InstanceMeta> providers;
+
+    final List<InstanceMeta> isolatedProviders = new ArrayList<>();
+
+    final List<InstanceMeta> halfOpenedProviders = new ArrayList<>();
+
+    Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
     HttpInvoker httpInvoker;
+
+    ScheduledExecutorService executor;
 
     public WmInvocationHandler(Class<?> clazz, RpcContext context, List<InstanceMeta> providers) {
         this.service = clazz;
@@ -36,6 +51,14 @@ public class WmInvocationHandler implements InvocationHandler {
         this.providers = providers;
         int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
+        this.executor = Executors.newSingleThreadScheduledExecutor();
+        this.executor.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+    }
+
+    private void halfOpen() {
+        log.debug("======>halfOpen isolatedProviders = {}", isolatedProviders);
+        halfOpenedProviders.clear();
+        halfOpenedProviders.addAll(isolatedProviders);
     }
 
     @Override
@@ -65,14 +88,54 @@ public class WmInvocationHandler implements InvocationHandler {
                     }
                 }
 
-                //[[
-                List<InstanceMeta> instances = context.getRouter().route(providers);
-                InstanceMeta instance = context.getLoadBalancer().choose(instances);
+                InstanceMeta instance;
+                synchronized (halfOpenedProviders) {
+                    if (halfOpenedProviders.isEmpty()) {
+                        //[[
+                        List<InstanceMeta> instances = context.getRouter().route(providers);
+                        instance = context.getLoadBalancer().choose(instances);
+                        log.info("loadBalancer.choose(urls) ==> {}", instance);
+                    } else {
+                        instance = halfOpenedProviders.remove(0);
+                        log.debug("check alive instance ==> {}", instance);
+                    }
+                }
 
-                log.info("loadBalancer.choose(urls) ==> {}", instance);
-                RpcResponse<?> rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
+                RpcResponse<?> rpcResponse;
+                Object result;
+                try {
+                    rpcResponse = httpInvoker.post(rpcRequest, instance.toUrl());
+                    result = castResponseToReturnResult(method, rpcResponse);
+                } catch (Exception ex) {
+                    // 故障的规则统计和隔离
+                    // 每一次异常，记录一次，统计 30s 的异常数
+                    String url = instance.toUrl();
+                    SlidingTimeWindow window = windows.get(url);
+                    if (window == null) {
+                        window = new SlidingTimeWindow();
+                        windows.put(url, window);
+                    }
 
-                Object result = castResponseToReturnResult(method, rpcResponse);
+                    window.record(System.currentTimeMillis());
+                    log.debug("instance {} in window with {}", url, window.getSum());
+
+                    // 发生了 10次，就做故障隔离
+                    if (window.getSum() >= 10) {
+                        isolate(instance);
+                    }
+
+                    throw ex;
+                }
+
+                synchronized (providers) {
+                    if (!providers.contains(instance)) {
+                        isolatedProviders.remove(instance);
+                        providers.add(instance);
+                        log.debug("instance {} is recovered, isolatedProviders = {}", instance, isolatedProviders);
+                        log.debug("instance {} is recovered, providers = {}", instance, providers);
+                    }
+                }
+
                 // ]
                 // 这里拿到的可能不是最终值
                 for (Filter filter : this.context.getFilters()) {
@@ -86,6 +149,7 @@ public class WmInvocationHandler implements InvocationHandler {
                 // ]
                 // TODO 处理基本类型
                 return result;
+
             } catch (Exception ex) {
                 if (!(ex.getCause() instanceof SocketTimeoutException)) {
                     throw ex;
@@ -94,6 +158,14 @@ public class WmInvocationHandler implements InvocationHandler {
         }
 
         return null;
+    }
+
+    private void isolate(InstanceMeta instance) {
+        log.debug("======> isolate instance: {}", instance);
+        providers.remove(instance);
+        log.debug("======> providers = {}", providers);
+        isolatedProviders.add(instance);
+        log.debug("======> isolatedProviders = {}", isolatedProviders);
     }
 
     private static Object castResponseToReturnResult(Method method, RpcResponse<?> rpcResponse) {

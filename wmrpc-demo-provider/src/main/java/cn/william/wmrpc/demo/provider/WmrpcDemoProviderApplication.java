@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.core.provider.ProviderConfig;
+import cn.william.wmrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
@@ -22,10 +24,22 @@ public class WmrpcDemoProviderApplication {
     @Autowired
     ProviderInvoker providerInvoker;
 
+    @Autowired
+    UserService userService;
+
     // 使用 HTTP + JSON 来实现网络通信和序列化
     @RequestMapping("/")
     public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
         return providerInvoker.invoke(request);
+    }
+
+    @RequestMapping("/ports")
+    public RpcResponse<String> ports(@RequestParam("ports") String ports) {
+        userService.setTimeoutPorts(ports);
+        RpcResponse<String> response = new RpcResponse<>();
+        response.setStatus(true);
+        response.setData("OK: " + ports);
+        return response;
     }
 
     @Bean

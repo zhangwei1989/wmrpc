@@ -45,7 +45,7 @@ public class ConsumerConfig {
     @Bean
     public LoadBalancer<InstanceMeta> loadBalancer() {
 //        return LoadBalancer.Default;
-        return new RandomLoadBalancer<>();
+        return new RoundRibonLoadBalancer<>();
     }
 
     @Bean

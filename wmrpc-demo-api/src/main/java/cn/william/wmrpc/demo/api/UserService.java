@@ -23,4 +23,6 @@ public interface UserService {
     String getName(int id);
 
     User find(int timeout);
+
+    public void setTimeoutPorts(String timeoutPorts);
 }

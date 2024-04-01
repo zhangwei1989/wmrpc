@@ -30,8 +30,8 @@ public class WmrpcDemoConsumerApplication {
     @WmConsumer
     UserService userService;
 
-    @WmConsumer
-    OrderService orderService;
+//    @WmConsumer
+//    OrderService orderService;
 
     @RequestMapping("/")
     public User findById(@RequestParam("id") int id) {
