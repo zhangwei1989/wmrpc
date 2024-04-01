@@ -29,4 +29,6 @@ public interface UserService {
     Map<String, List> getMutipleUser(Map<String, List> map);
 
     User find(int timeout);
+
+    public void setPorts(String ports);
 }

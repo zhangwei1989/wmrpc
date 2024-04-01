@@ -3,21 +3,24 @@ package cn.william.wmrpc.demo.provider;
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
-import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 @Component
 @WmProvider
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private Environment environment;
+
+    private String ports = "8081,8094";
 
     @Override
     public User findById(int id) {
@@ -48,12 +51,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public int[] getIds() {
-        return new int[] {100,200,300};
+        return new int[]{100, 200, 300};
     }
 
     @Override
     public long[] getLongIds() {
-        return new long[]{1,2,3};
+        return new long[]{1, 2, 3};
     }
 
     @Override
@@ -79,7 +82,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User find(int timeout) {
         String port = environment.getProperty("server.port");
-        if ("8081".equals(port)) {
+        if (Arrays.stream(ports.split(",")).anyMatch(port::equals)) {
             try {
                 Thread.sleep(timeout);
             } catch (InterruptedException e) {
@@ -90,4 +93,9 @@ public class UserServiceImpl implements UserService {
         return new User(101, "Wmrpc-" + port);
     }
 
+    @Override
+    public void setPorts(String ports) {
+        this.ports = ports;
+        log.debug("current ports set to : {}", ports);
+    }
 }
