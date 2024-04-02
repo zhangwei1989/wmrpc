@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.consumer;
 import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.api.RpcFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +62,15 @@ public class ConsumerBootstrap implements ApplicationContextAware {
         // 配置存入 rpcContext 中
         rpcContext.getParameters().put("wmrpc.retires", String.valueOf(retries));
         rpcContext.getParameters().put("wmrpc.timeout", String.valueOf(timeout));
+
+        // RpcFilter 存入 rpcContext 中
+        String[] beanNamesForType = context.getBeanNamesForType(RpcFilter.class);
+        List<RpcFilter> filters = new ArrayList<>();
+
+        for (String beanName : beanNamesForType) {
+            filters.add((RpcFilter) context.getBean(beanName));
+        }
+        rpcContext.setFilters(filters);
 
         for (String name : names) {
             Object bean = context.getBean(name);

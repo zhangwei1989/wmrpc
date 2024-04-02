@@ -1,10 +1,8 @@
 package cn.william.wmrpc.core.consumer;
 
-import cn.william.wmrpc.core.api.LoadBalancer;
-import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.api.Router;
-import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
+import cn.william.wmrpc.core.filter.CacheFilter;
 import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +56,11 @@ public class ConsumerConfig {
     @Bean
     RpcContext rpcContext(@Autowired Router router, @Autowired LoadBalancer loadBalancer) {
         return new RpcContext(router, loadBalancer);
+    }
+
+    @Bean
+    RpcFilter filter() {
+        return new CacheFilter();
     }
 
 }

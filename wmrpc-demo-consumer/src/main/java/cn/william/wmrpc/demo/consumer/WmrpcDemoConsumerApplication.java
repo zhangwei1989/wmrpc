@@ -33,7 +33,7 @@ public class WmrpcDemoConsumerApplication {
 //    private OrderService orderService;
 
     @RequestMapping("/")
-    public User findById(int id) {
+    public User findById(@RequestParam("id") int id) {
         return userService.findById(id);
     }
 
