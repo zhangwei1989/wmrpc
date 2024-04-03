@@ -55,8 +55,8 @@ public class WmrpcDemoConsumerApplication {
 //                log.warn("=============> userService.getId(1000);, the result is {}", userService.getId(1000));
 //
 //                log.warn("=============> userService.getId(new User(100, \"WM\");, the result is {}", userService.getId(new User(100, "WM")));
-//                User user = userService.findById(1);
-//                System.out.println("RPC result userService.findById(1) = " + user);
+                User user = userService.findById(1);
+                System.out.println("RPC result userService.findById(1) = " + user);
 //
 //                Order order = orderService.findById(2);
 //                System.out.println("RPC result orderService.findById(2) = " + order);

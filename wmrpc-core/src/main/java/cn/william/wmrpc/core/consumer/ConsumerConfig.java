@@ -2,7 +2,7 @@ package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
-import cn.william.wmrpc.core.filter.CacheFilter;
+import cn.william.wmrpc.core.filter.MockFilter;
 import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 /**
  * Description for this class.
  *
- * @Author : zhangwei(zhangwei19890518@gmail.com)
+ * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/13
  */
 @Configuration
@@ -60,7 +60,7 @@ public class ConsumerConfig {
 
     @Bean
     RpcFilter filter() {
-        return new CacheFilter();
+        return new MockFilter();
     }
 
 }
