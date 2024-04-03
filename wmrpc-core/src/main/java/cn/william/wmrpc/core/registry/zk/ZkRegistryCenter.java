@@ -6,6 +6,7 @@ import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.registry.ChangedListener;
 import cn.william.wmrpc.core.registry.Event;
+import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.RetryPolicy;
@@ -16,6 +17,7 @@ import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +68,7 @@ public class ZkRegistryCenter implements RegistryCenter {
             String instancePath = servicePath + "/" + instanceMeta.toPath();
             log.info("======> register to zk: {}", instancePath);
             if (client.checkExists().forPath(instancePath) == null) {
-                client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, "provider".getBytes());
+                client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instanceMeta.toMetas().getBytes());
             }
         } catch (Exception e) {
             throw new RpcException(e);
@@ -101,7 +103,19 @@ public class ZkRegistryCenter implements RegistryCenter {
 
             List<InstanceMeta> providers = nodes.stream().map(x -> {
                 String[] strings = x.split("_");
-                return InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));
+                InstanceMeta instance = InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));
+
+                // 获取 instance Metas 属性
+                String nodePath = servicePath + "/" + x;
+                byte[] bytes;
+                try {
+                    bytes = client.getData().forPath(nodePath);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                instance.setParameters(JSON.parseObject(new String(bytes), HashMap.class));
+                return instance;
             }).collect(Collectors.toList());
             return providers;
         } catch (Exception e) {

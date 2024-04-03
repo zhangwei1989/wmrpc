@@ -53,6 +53,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${app.env}")
     private String env;
 
+    @Value("#{${app.metas}}")
+    Map<String, String> metas;
+
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
 
     @PostConstruct
@@ -73,6 +76,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
         rc.start();
         this.instance = InstanceMeta.http(ip, port);
+        this.instance.getParameters().putAll(this.metas);
         skeleton.keySet().forEach(this::registerService);
     }
 

@@ -18,7 +18,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     Environment environment;
 
-    String timeoutPorts = "8081,8088";
+    String timeoutPorts = "8080";
 
     @Override
     public User findById(int id) {
