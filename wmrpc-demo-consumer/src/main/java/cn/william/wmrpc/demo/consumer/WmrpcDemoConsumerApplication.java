@@ -1,11 +1,14 @@
 package cn.william.wmrpc.demo.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
+import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.consumer.ConsumerConfig;
 import cn.william.wmrpc.demo.api.OrderService;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,6 +33,9 @@ public class WmrpcDemoConsumerApplication {
     @WmConsumer
     UserService userService;
 
+    @Autowired
+    Router router;
+
 //    @WmConsumer
 //    OrderService orderService;
 
@@ -41,6 +47,12 @@ public class WmrpcDemoConsumerApplication {
     @RequestMapping("/find/")
     public User find(@RequestParam("timeout") int timeout) {
         return userService.find(timeout);
+    }
+
+    @RequestMapping("/gray/")
+    public String gray(@RequestParam("ratio") int ratio) {
+        ((GrayRouter)router).setGrayRatio(ratio);
+        return "OK,new gray ratio is " + ratio;
     }
 
     public static void main(String[] args) {

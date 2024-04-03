@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -114,7 +115,11 @@ public class ZkRegistryCenter implements RegistryCenter {
                     throw new RuntimeException(e);
                 }
 
-                instance.setParameters(JSON.parseObject(new String(bytes), HashMap.class));
+                Map<String ,String> metas = JSON.parseObject(new String(bytes), HashMap.class);
+                System.out.println("instance: " + instance);
+                metas.forEach((k, v) -> System.out.println( k + "->" + v));
+
+                instance.setParameters(metas);
                 return instance;
             }).collect(Collectors.toList());
             return providers;

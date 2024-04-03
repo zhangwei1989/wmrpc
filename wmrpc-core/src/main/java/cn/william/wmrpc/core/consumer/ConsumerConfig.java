@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.Filter;
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.filter.CacheFilter;
@@ -29,6 +30,9 @@ public class ConsumerConfig {
     @Value("${wmrpc.providers}")
     String servers;
 
+    @Value("${app.grayRatio}")
+    private int grayRatio;
+
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
         return new ConsumerBootstrap();
@@ -49,8 +53,8 @@ public class ConsumerConfig {
     }
 
     @Bean
-    public Router<InstanceMeta> loadRouter() {
-        return Router.Default;
+    public Router loadRouter() {
+        return new GrayRouter(grayRatio);
     }
 
 //    @Bean
