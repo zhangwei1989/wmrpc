@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+wmrpc:
+  app: wmrpc
+  namespace: namespace
+  version: 1.0
+  env: dev
+  metas: "{dc: 'bj', gray: 'false', unit: 'B001'}"
+
+  zk:
+    url: localhost:2181
+    namespace: wmrpc-rc

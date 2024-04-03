@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * Description for this class.
+ * 服务启动类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/7 22:16
@@ -52,6 +52,9 @@ public class ProviderBootstrap implements ApplicationContextAware {
     @Value("${wmrpc.version}")
     private String version;
 
+    @Value("#{${wmrpc.metas}}")
+    private Map<String, String> metas;
+
     private InstanceMeta instanceMeta;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
@@ -70,6 +73,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         instanceMeta = InstanceMeta.builder().scheme("http").host(ip).port(port).build();
+        instanceMeta.setParameters(metas);
         rc.start();
         skeleton.keySet().stream().forEach(service -> {
             ServiceMeta serviceMeta = ServiceMeta.builder()

@@ -1,10 +1,13 @@
 package cn.william.wmrpc.core.meta;
 
+import com.alibaba.fastjson.JSON;
 import lombok.Builder;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
- * Description for this class.
+ * 服务实例元信息
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/22
@@ -21,11 +24,17 @@ public class InstanceMeta {
 
     private String context;
 
+    private Map<String, String> parameters;
+
     public String toPath() {
         return String.format("%s_%d_%s", host, port, context);
     }
 
     public String http() {
         return String.format("%s://%s:%d", scheme, host, port);
+    }
+
+    public String toMetas() {
+        return JSON.toJSONString(parameters);
     }
 }

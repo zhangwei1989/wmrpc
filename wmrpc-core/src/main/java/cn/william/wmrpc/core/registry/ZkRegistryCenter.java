@@ -3,6 +3,7 @@ package cn.william.wmrpc.core.registry;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
+import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
@@ -12,11 +13,13 @@ import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Description for this class.
+ * ZK 注册中心
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/20
@@ -56,14 +59,14 @@ public class ZkRegistryCenter implements RegistryCenter {
         String servicePath = "/" + service.toPath();
         // 创建持久化存储
         if (client.checkExists().forPath(servicePath) == null) {
-            client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath);
+            client.create().withMode(CreateMode.PERSISTENT).forPath(servicePath, service.toMetas().getBytes());
             log.info("======> service - {} registered to zk rc.", servicePath);
         }
 
         // 创建临时节点
         String instancePath = servicePath + "/" + instance.toPath();
         if (client.checkExists().forPath(instancePath) == null) {
-            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath);
+            client.create().withMode(CreateMode.EPHEMERAL).forPath(instancePath, instance.toMetas().getBytes());
             log.info("======> instance - {} registered to zk rc.", instancePath);
         }
     }
@@ -89,8 +92,27 @@ public class ZkRegistryCenter implements RegistryCenter {
         String servicePath = "/" + service.toPath();
         List<String> nodes = client.getChildren().forPath(servicePath);
 
-        return nodes.stream().map(n ->
-                InstanceMeta.builder().scheme("http").host(n.split("_")[0]).port(Integer.valueOf(n.split("_")[1])).context(n.split("_")[2]).build()).collect(Collectors.toList());
+        return nodes.stream().map(n -> {
+            InstanceMeta instanceMeta = InstanceMeta.builder()
+                    .scheme("http").host(n.split("_")[0]).port(Integer.valueOf(n.split("_")[1])).context(n.split("_")[2]).build();
+
+            // 获取 ZK 中获取的 instanceMeta 里的 meta 信息，并设置
+            try {
+                String metaStr = new String(client.getData().forPath(servicePath + "/" + instanceMeta.toPath()));
+                Map<String, String> meta = JSON.parseObject(metaStr, HashMap.class);
+
+                instanceMeta.setParameters(meta);
+
+                System.out.println("instanceMeta: " + instanceMeta);
+                meta.forEach((k, v) -> {
+                    System.out.println(k + " -> " + v);
+                });
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+
+            return instanceMeta;
+        }).collect(Collectors.toList());
     }
 
     // consumer 订阅
