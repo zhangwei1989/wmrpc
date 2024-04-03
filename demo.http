@@ -4,6 +4,9 @@ GET http://localhost:8090/?id=1000
 ### 获取8090调用超时信息
 GET http://localhost:8090/find/?timeout=1500
 
+### 调整8090灰度比例
+GET http://localhost:8090/gray?ratio=100
+
 ### 获取provider 8081端接口调整 ports
 GET http://localhost:8081/ports?ports=8082
 

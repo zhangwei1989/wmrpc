@@ -1,18 +1,22 @@
 package cn.william.wmrpc.core.consumer;
 
-import cn.william.wmrpc.core.api.*;
+import cn.william.wmrpc.core.api.LoadBalancer;
+import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
-import cn.william.wmrpc.core.filter.MockFilter;
 import cn.william.wmrpc.core.registry.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 
 /**
- * Description for this class.
+ * 消费者配置类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/13
@@ -20,6 +24,9 @@ import org.springframework.core.annotation.Order;
 @Configuration
 @Slf4j
 public class ConsumerConfig {
+
+    @Value("${wmrpc.grayRatio}")
+    private int grayRatio;
 
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
@@ -45,7 +52,7 @@ public class ConsumerConfig {
 
     @Bean
     Router consumer_rt() {
-        return Router.Default;
+        return new GrayRouter(grayRatio);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
@@ -58,9 +65,9 @@ public class ConsumerConfig {
         return new RpcContext(router, loadBalancer);
     }
 
-    @Bean
-    RpcFilter filter() {
-        return new MockFilter();
-    }
+//    @Bean
+//    RpcFilter filter() {
+//        return new MockFilter();
+//    }
 
 }

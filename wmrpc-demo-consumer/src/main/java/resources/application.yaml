@@ -1,0 +1,20 @@
+server:
+  port: 8090
+
+wmrpc:
+  providers: http://localhost:8081,http://localhost:8082,http://localhost:8083
+  app: wmrpc
+  namespace: namespace
+  version: 1.0
+  env: dev
+  zk:
+    url: localhost:2181
+    namespace: wmrpc-rc
+    retries: 2
+    timeout: 1000
+  grayRatio: 10
+
+logging:
+  level:
+    root: info
+    cn.william.wmrpc: debug
