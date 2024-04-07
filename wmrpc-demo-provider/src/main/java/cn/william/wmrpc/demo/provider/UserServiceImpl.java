@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.core.env.Environment;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @WmProvider
@@ -88,6 +90,46 @@ public class UserServiceImpl implements UserService {
 
     public void setTimeoutPorts(String timeoutPorts) {
         this.timeoutPorts = timeoutPorts;
+    }
+
+    @Override
+    public List<User> getList(List<User> userList) {
+        User[] users = userList.toArray(new User[userList.size()]);
+        System.out.println(" ==> userList.toArray()[] = ");
+        Arrays.stream(users).forEach(System.out::println);
+        userList.add(new User(2024,"KK2024"));
+        return userList;
+    }
+
+    @Override
+    public Map<String, User> getMap(Map<String, User> userMap) {
+        userMap.values().forEach(x -> System.out.println(x.getClass()));
+        User[] users = userMap.values().toArray(new User[userMap.size()]);
+        System.out.println(" ==> userMap.values().toArray()[] = ");
+        Arrays.stream(users).forEach(System.out::println);
+        userMap.put("A2024", new User(2024,"KK2024"));
+        return userMap;
+    }
+
+    @Override
+    public User[] findUsers(User[] users) {
+        return users;
+    }
+
+    @Override
+    public Boolean getFlag(boolean flag) {
+        return !flag;
+    }
+
+    @Override
+    public User findById(long id) {
+        return new User(Long.valueOf(id).intValue(), "KK");
+    }
+
+    @Override
+    public User ex(boolean flag) {
+        if(flag) throw new RuntimeException("just throw an exception");
+        return new User(100, "KK100");
     }
 
 }

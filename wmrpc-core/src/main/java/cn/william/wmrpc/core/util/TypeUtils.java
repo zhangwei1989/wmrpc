@@ -2,12 +2,14 @@ package cn.william.wmrpc.core.util;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * Description for this class.
@@ -15,9 +17,13 @@ import java.util.List;
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/16
  */
+@Slf4j
 public class TypeUtils {
 
     public static Object cast(Object origin, Class<?> type) {
+        log.debug("cast: origin = " + origin);
+        log.debug("cast: type = " + type);
+
         if (origin == null) {
             return null;
         }
@@ -72,20 +78,75 @@ public class TypeUtils {
 
     @Nullable
     public static Object castMethodResult(Method method, Object data) {
-        if (data instanceof JSONObject) {
-            JSONObject jsonResult = (JSONObject) data;
-            return jsonResult.toJavaObject(method.getReturnType());
-        } else if (data instanceof JSONArray jsonArray) {
-            Object[] array = jsonArray.toArray();
-            Class<?> componentType = method.getReturnType().getComponentType();
-            Object resultArray = Array.newInstance(componentType, array.length);
-            for (int i = 0; i < array.length; i++) {
-                Array.set(resultArray, i, array[i]);
-            }
+        log.debug("castMethodResult: method = " + method);
+        log.debug("castMethodResult: data = " + data);
 
-            return resultArray;
+        Class<?> type = method.getReturnType();
+        Type genericReturnType = method.getGenericReturnType();
+        return castGeneric(data, type, genericReturnType);
+    }
+
+    public static Object castGeneric(Object data, Class<?> type, Type genericReturnType) {
+        log.debug("castGeneric: data = " + data);
+        log.debug("castGeneric: method.getReturnType() = " + type);
+        log.debug("castGeneric: method.getGenericReturnType() = " + genericReturnType);
+        if (data instanceof Map map) {
+            if (Map.class.isAssignableFrom(type)) {
+                Map resultMap = new HashMap();
+                log.debug(genericReturnType.toString());
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Class<?> keyType = (Class<?>)parameterizedType.getActualTypeArguments()[0];
+                    Class<?> valueType = (Class<?>)parameterizedType.getActualTypeArguments()[1];
+                    log.debug("keyType  : " + keyType);
+                    log.debug("valueType: " + valueType);
+                    map.forEach(
+                            (k,v) -> {
+                                Object key = cast(k, keyType);
+                                Object value = cast(v, valueType);
+                                resultMap.put(key, value);
+                            }
+                    );
+                }
+                return resultMap;
+            }
+            if(data instanceof JSONObject jsonObject) {
+                return jsonObject.toJavaObject(type);
+            }else {
+                JSONObject jsonObject = new JSONObject((Map) data);
+                return jsonObject.toJavaObject(type);
+            }
+        } else if (data instanceof List list) {
+            Object[] array = list.toArray();
+            if (type.isArray()) {
+                Class<?> componentType = type.getComponentType();
+                Object resultArray = Array.newInstance(componentType, array.length);
+                for (int i = 0; i < array.length; i++) {
+                    if (componentType.isPrimitive() || componentType.getPackageName().startsWith("java")) {
+                        Array.set(resultArray, i, array[i]);
+                    } else {
+                        Object castObject = cast(array[i], componentType);
+                        Array.set(resultArray, i, castObject);
+                    }
+                }
+                return resultArray;
+            } else if (List.class.isAssignableFrom(type)) {
+                List<Object> resultList = new ArrayList<>(array.length);
+                log.debug(genericReturnType.toString());
+                if (genericReturnType instanceof ParameterizedType parameterizedType) {
+                    Type actualType = parameterizedType.getActualTypeArguments()[0];
+                    log.debug(actualType.toString());
+                    for (Object o : array) {
+                        resultList.add(cast(o, (Class<?>) actualType));
+                    }
+                } else {
+                    resultList.addAll(Arrays.asList(array));
+                }
+                return resultList;
+            } else {
+                return null;
+            }
         } else {
-            return TypeUtils.cast(data, method.getReturnType());
+            return cast(data, type);
         }
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.List;
 
 /**
@@ -32,11 +33,12 @@ public class ProviderInvoker {
             ProviderMeta meta = findProviderMeta(providerMetas, request.getMethodSign());
 
             Method method = meta.getMethod();
-            Object[] args = processArgs(request.getArgs(), method.getParameterTypes());
+            Object[] args = processArgs(request.getArgs(), method.getParameterTypes(), method.getGenericParameterTypes());
             Object result = method.invoke(meta.getServiceImpl(), args);
             rpcResponse.setStatus(true);
             rpcResponse.setData(result);
         } catch (InvocationTargetException e) {
+            e.printStackTrace();
             rpcResponse.setEx(new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
             rpcResponse.setEx(new RpcException(e.getMessage()));
@@ -45,14 +47,14 @@ public class ProviderInvoker {
         return rpcResponse;
     }
 
-    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes) {
+    private Object[] processArgs(Object[] args, Class<?>[] parameterTypes, Type[] genericParameterTypes) {
         if (args == null || args.length == 0) {
             return null;
         }
 
         Object[] autuals = new Object[args.length];
         for (int i = 0; i < args.length; i++) {
-            autuals[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+            autuals[i] = TypeUtils.castGeneric(args[i], parameterTypes[i], genericParameterTypes[i]);
         }
 
         return autuals;

@@ -1,5 +1,8 @@
 package cn.william.wmrpc.demo.api;
 
+import java.util.List;
+import java.util.Map;
+
 public interface UserService {
 
     User findById(int id);
@@ -25,4 +28,17 @@ public interface UserService {
     User find(int timeout);
 
     public void setTimeoutPorts(String timeoutPorts);
+
+    public List<User> getList(List<User> userList);
+
+    public Map<String, User> getMap(Map<String, User> userMap);
+
+    Boolean getFlag(boolean flag);
+
+    User[] findUsers(User[] users);
+
+    User findById(long id);
+
+    User ex(boolean flag);
+
 }
