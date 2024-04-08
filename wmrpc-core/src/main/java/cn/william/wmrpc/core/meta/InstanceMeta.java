@@ -23,7 +23,7 @@ public class InstanceMeta {
 
     private String host;
 
-    private Integer port;
+    private String port;
 
     private String context;
 
@@ -31,7 +31,7 @@ public class InstanceMeta {
 
     private Map<String, String> parameters = new HashMap<>();
 
-    public InstanceMeta(String schema, String host, Integer port, String context) {
+    public InstanceMeta(String schema, String host, String port, String context) {
         this.schema = schema;
         this.host = host;
         this.port = port;
@@ -39,15 +39,15 @@ public class InstanceMeta {
     }
 
     public String toPath() {
-        return String.format("%s_%d", host, port);
+        return String.format("%s_%s", host, port);
     }
 
-    public static InstanceMeta http(String host, Integer port) {
+    public static InstanceMeta http(String host, String port) {
         return new InstanceMeta("http", host, port, "wmrpc");
     }
 
     public String toUrl() {
-        return String.format("%s://%s:%d/%s", schema, host, port, context);
+        return String.format("%s://%s:%s/%s", schema, host, port, context);
     }
 
     public String toMetas() {

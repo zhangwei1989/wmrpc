@@ -6,13 +6,14 @@ import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
+import cn.william.wmrpc.core.config.AppConfigProperties;
+import cn.william.wmrpc.core.config.ProviderConfigProperties;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.LinkedMultiValueMap;
@@ -41,22 +42,19 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private RegistryCenter rc;
 
-    @Value("${server.port}")
-    private Integer port;
+    private String port;
 
-    @Value("${app.id}")
-    private String app;
+    private AppConfigProperties appProperties;
 
-    @Value("${app.namespace}")
-    private String namespace;
-
-    @Value("${app.env}")
-    private String env;
-
-    @Value("#{${app.metas}}")
-    Map<String, String> metas;
+    private ProviderConfigProperties providerProperties;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
+
+    public ProviderBootstrap(String port, AppConfigProperties appProperties, ProviderConfigProperties providerProperties) {
+        this.port = port;
+        this.appProperties = appProperties;
+        this.providerProperties = providerProperties;
+    }
 
     @PostConstruct
     public void init() {
@@ -76,7 +74,7 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
         rc.start();
         this.instance = InstanceMeta.http(ip, port);
-        this.instance.getParameters().putAll(this.metas);
+        this.instance.getParameters().putAll(providerProperties.getMetas());
         skeleton.keySet().forEach(this::registerService);
     }
 
@@ -89,20 +87,20 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     private void registerService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(app)
-                .namespace(namespace)
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
                 .name(service)
-                .env(env)
+                .env(appProperties.getEnv())
                 .build();
         rc.register(serviceMeta, instance);
     }
 
     private void unregisterService(String service) {
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(app)
-                .namespace(namespace)
+                .app(appProperties.getId())
+                .namespace(appProperties.getNamespace())
                 .name(service)
-                .env(env)
+                .env(appProperties.getEnv())
                 .build();
         rc.unregister(serviceMeta, instance);
     }

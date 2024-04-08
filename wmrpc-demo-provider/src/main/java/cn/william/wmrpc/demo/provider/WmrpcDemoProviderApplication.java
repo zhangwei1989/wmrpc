@@ -2,7 +2,7 @@ package cn.william.wmrpc.demo.provider;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
-import cn.william.wmrpc.core.provider.ProviderConfig;
+import cn.william.wmrpc.core.config.ProviderConfig;
 import cn.william.wmrpc.core.transport.SpringBootTransport;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;

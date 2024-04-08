@@ -33,10 +33,10 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client = null;
 
-    @Value("${wmrpc.zkServer}")
+    @Value("${wmrpc.zk.server}")
     String servers;
 
-    @Value("${wmrpc.zkRoot}")
+    @Value("${wmrpc.zk.root}")
     String root;
 
     @Override
@@ -104,7 +104,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
             List<InstanceMeta> providers = nodes.stream().map(x -> {
                 String[] strings = x.split("_");
-                InstanceMeta instance = InstanceMeta.http(strings[0], Integer.valueOf(strings[1]));
+                InstanceMeta instance = InstanceMeta.http(strings[0], strings[1]);
 
                 // 获取 instance Metas 属性
                 String nodePath = servicePath + "/" + x;

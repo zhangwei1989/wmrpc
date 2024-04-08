@@ -1,11 +1,15 @@
-package cn.william.wmrpc.core.provider;
+package cn.william.wmrpc.core.config;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.provider.ProviderBootstrap;
+import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import cn.william.wmrpc.core.transport.SpringBootTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -13,12 +17,21 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 @Slf4j
-@Import({SpringBootTransport.class})
+@Import({AppConfigProperties.class,ProviderConfigProperties.class,SpringBootTransport.class})
 public class ProviderConfig {
+
+    @Value("${server.port:8080}")
+    private String port;
+
+    @Autowired
+    AppConfigProperties appConfigProperties;
+
+    @Autowired
+    ProviderConfigProperties providerConfigProperties;
 
     @Bean
     ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap();
+        return new ProviderBootstrap(port, appConfigProperties, providerConfigProperties);
     }
 
     @Bean
@@ -27,6 +40,7 @@ public class ProviderConfig {
     }
 
     @Bean // (initMethod = "start", destroyMethod = "stop")
+    @ConditionalOnMissingBean
     public RegistryCenter provider_rc() {
         return new ZkRegistryCenter();
     }

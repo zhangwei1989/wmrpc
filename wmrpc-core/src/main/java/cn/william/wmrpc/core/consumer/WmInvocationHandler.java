@@ -49,10 +49,14 @@ public class WmInvocationHandler implements InvocationHandler {
         this.service = clazz;
         this.context = context;
         this.providers = providers;
-        int timeout = Integer.parseInt(context.getParameters().getOrDefault("app.timeout", "1000"));
+        int timeout = Integer.parseInt(context.getParameters().getOrDefault("consumer.timeout", "1000"));
         this.httpInvoker = new OkHttpInvoker(timeout);
         this.executor = Executors.newSingleThreadScheduledExecutor();
-        this.executor.scheduleWithFixedDelay(this::halfOpen, 10, 60, TimeUnit.SECONDS);
+        int halfOpenInitialDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.halfOpenInitialDelay", "10000"));
+        int halfOpenDelay = Integer.parseInt(context.getParameters()
+                .getOrDefault("consumer.halfOpenDelay", "60000"));
+        this.executor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay, halfOpenDelay, TimeUnit.SECONDS);
     }
 
     private void halfOpen() {
@@ -74,7 +78,9 @@ public class WmInvocationHandler implements InvocationHandler {
         rpcRequest.setArgs(args);
 
         int retries = Integer.parseInt(context.getParameters()
-                .getOrDefault("app.retries", "1"));
+                .getOrDefault("consumer.retries", "1"));
+        int faultLimit = Integer.parseInt(context.getParameters().
+                getOrDefault("consumer.faultLimit", "5"));
         while (retries-- > 0) {
             log.info("======> reties: {}", retries);
 
@@ -120,7 +126,7 @@ public class WmInvocationHandler implements InvocationHandler {
                     log.debug("instance {} in window with {}", url, window.getSum());
 
                     // 发生了 10次，就做故障隔离
-                    if (window.getSum() >= 10) {
+                    if (window.getSum() >= faultLimit) {
                         isolate(instance);
                     }
 
