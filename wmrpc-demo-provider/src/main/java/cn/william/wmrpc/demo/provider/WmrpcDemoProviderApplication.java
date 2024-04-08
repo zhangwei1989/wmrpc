@@ -2,8 +2,8 @@ package cn.william.wmrpc.demo.provider;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
-import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.core.provider.ProviderConfig;
+import cn.william.wmrpc.core.transport.SpringBootTransport;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +12,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,21 +21,18 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication
-@RestController
 @Import(ProviderConfig.class)
 public class WmrpcDemoProviderApplication {
 
-    @Autowired
-    ProviderInvoker providerInvoker;
+    public static void main(String[] args) {
+        SpringApplication.run(WmrpcDemoProviderApplication.class, args);
+    }
 
     @Autowired
     UserService userService;
 
-    // 使用 HTTP + JSON 来实现网络通信和序列化
-    @RequestMapping("/")
-    public RpcResponse<Object> invoke(@RequestBody RpcRequest request) {
-        return providerInvoker.invoke(request);
-    }
+    @Autowired
+    SpringBootTransport transport;
 
     @RequestMapping("/ports")
     public RpcResponse<String> ports(@RequestParam("ports") String ports) {
@@ -63,7 +58,7 @@ public class WmrpcDemoProviderApplication {
         request.setMethodSign("findById@1_int");
         request.setArgs(new Object[]{100});
 
-        RpcResponse<Object> rpcResponse = invoke(request);
+        RpcResponse<Object> rpcResponse = transport.invoke(request);
         System.out.println("return : " + rpcResponse.getData());
 
         // test 2 parameters method
@@ -73,7 +68,7 @@ public class WmrpcDemoProviderApplication {
         request1.setMethodSign("findById@2_int_java.lang.String");
         request1.setArgs(new Object[]{100, "CC"});
 
-        RpcResponse<Object> rpcResponse1 = invoke(request1);
+        RpcResponse<Object> rpcResponse1 = transport.invoke(request1);
         System.out.println("return : " + rpcResponse1.getData());
 
         // test 3 for List<User> method&parameter
@@ -85,7 +80,7 @@ public class WmrpcDemoProviderApplication {
         userList.add(new User(100, "KK100"));
         userList.add(new User(101, "KK101"));
         request3.setArgs(new Object[]{userList});
-        RpcResponse<Object> rpcResponse3 = invoke(request3);
+        RpcResponse<Object> rpcResponse3 = transport.invoke(request3);
         System.out.println("return : " + rpcResponse3.getData());
 
         // test 4 for Map<String, User> method&parameter
@@ -97,11 +92,8 @@ public class WmrpcDemoProviderApplication {
         userMap.put("P100", new User(100, "KK100"));
         userMap.put("P101", new User(101, "KK101"));
         request4.setArgs(new Object[]{userMap});
-        RpcResponse<Object> rpcResponse4 = invoke(request4);
+        RpcResponse<Object> rpcResponse4 = transport.invoke(request4);
         System.out.println("return : " + rpcResponse4.getData());
     }
 
-    public static void main(String[] args) {
-        SpringApplication.run(WmrpcDemoProviderApplication.class, args);
-    }
 }
