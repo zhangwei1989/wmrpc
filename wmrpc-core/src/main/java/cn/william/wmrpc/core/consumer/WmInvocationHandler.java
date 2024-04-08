@@ -173,12 +173,12 @@ public class WmInvocationHandler implements InvocationHandler {
             Object data = rpcResponse.getData();
             return TypeUtils.castMethodResult(method, data);
         } else {
-            Exception ex = rpcResponse.getEx();
-            if (ex instanceof RpcException exception) {
-                throw exception;
-            } else {
-                throw new RpcException(ex, RpcException.NoSuchMethodEx);
+            RpcException ex = rpcResponse.getEx();
+            if(ex != null) {
+                log.error("response error.", ex);
+                throw ex;
             }
+            return null;
         }
     }
 

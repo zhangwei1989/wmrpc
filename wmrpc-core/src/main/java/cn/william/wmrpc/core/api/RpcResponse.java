@@ -19,6 +19,6 @@ public class RpcResponse<T> {
 
     T data;          // new User
 
-    Exception ex;
+    RpcException ex;
 
 }
