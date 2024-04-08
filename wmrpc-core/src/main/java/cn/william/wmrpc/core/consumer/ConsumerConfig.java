@@ -9,6 +9,7 @@ import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.filter.CacheFilter;
 import cn.william.wmrpc.core.filter.MockFilter;
+import cn.william.wmrpc.core.filter.ParameterFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,10 +58,10 @@ public class ConsumerConfig {
         return new GrayRouter(grayRatio);
     }
 
-//    @Bean
-//    public Filter loadFilter() {
-//        return Filter.Default;
-//    }
+    @Bean
+    public Filter loadFilter() {
+        return new ParameterFilter();
+    }
 
 //    @Bean
 //    public Filter loadFilter() {

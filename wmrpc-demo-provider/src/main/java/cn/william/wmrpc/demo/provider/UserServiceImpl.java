@@ -1,6 +1,7 @@
 package cn.william.wmrpc.demo.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
+import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import lombok.Getter;
@@ -130,6 +131,13 @@ public class UserServiceImpl implements UserService {
     public User ex(boolean flag) {
         if(flag) throw new RuntimeException("just throw an exception");
         return new User(100, "KK100");
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        System.out.println(" ====>> RpcContext.ContextParameters: ");
+        RpcContext.ContextParameters.get().forEach((k, v)-> System.out.println(k+" -> " +v));
+        return RpcContext.getContextParameter(key);
     }
 
 }

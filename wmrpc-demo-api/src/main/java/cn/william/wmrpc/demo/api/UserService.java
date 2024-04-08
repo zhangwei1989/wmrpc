@@ -41,4 +41,6 @@ public interface UserService {
 
     User ex(boolean flag);
 
+    String echoParameter(String key);
+
 }

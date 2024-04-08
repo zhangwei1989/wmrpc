@@ -6,6 +6,7 @@ import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.consumer.ConsumerConfig;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
+import cn.william.wmrpc.core.api.RpcContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -167,5 +168,20 @@ public class WmrpcDemoConsumerApplication {
         userService.find(1100);
         System.out.println("userService.find take "
                 + (System.currentTimeMillis() - start) + " ms");
+
+        System.out.println("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+        String Key_Version = "rpc.version";
+        String Key_Message = "rpc.message";
+        RpcContext.setContextParameter(Key_Version, "v8");
+        RpcContext.setContextParameter(Key_Message, "this is a test message");
+        RpcContext.setContextParameter("a", "a100");
+        String version = userService.echoParameter(Key_Version);
+        RpcContext.setContextParameter(Key_Version, "v8");
+        RpcContext.setContextParameter(Key_Message, "this is a test message");
+        RpcContext.setContextParameter("b", "b100");
+        String message = userService.echoParameter(Key_Message);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+        System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
+//        RpcContext.ContextParameters.get().clear();
     }
 }
