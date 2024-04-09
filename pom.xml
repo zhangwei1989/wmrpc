@@ -6,7 +6,7 @@
     <artifactId>wmrpc</artifactId>
     <version>${wmrpc.version}</version>
     <name>wmrpc</name>
-    <description>wmrpc</description>
+    <description>zhangwei wmrpc</description>
     <packaging>pom</packaging>
     <url>https://github.com/zhangwei1989</url>
 
