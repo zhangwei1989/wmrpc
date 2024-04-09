@@ -2,12 +2,40 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>cn.william</groupId>
+    <groupId>io.github.zhangwei1989</groupId>
     <artifactId>wmrpc</artifactId>
     <version>${wmrpc.version}</version>
     <name>wmrpc</name>
     <description>wmrpc</description>
     <packaging>pom</packaging>
+    <url>https://github.com/zhangwei1989</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <issueManagement>
+        <system>github</system>
+        <url>https://github.com/zhangwei1989/wmrpc/issues</url>
+    </issueManagement>
+
+    <scm>
+        <connection>scm:git:https://github.com/zhangwei1989/wmrpc.git</connection>
+        <developerConnection>scm:git:https://github.com/zhangwei1989/wmrpc.git</developerConnection>
+        <url>https://github.com/zhangwei1989/wmrpc</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>zhangwei</name>
+            <email>331874675@qq.com</email>
+            <url>https://github.com/zhangwei1989</url>
+        </developer>
+    </developers>
 
     <modules>
         <module>wmrpc-core</module>
@@ -62,7 +90,94 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.1.0</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <excludeResources>true</excludeResources>
+                    <useDefaultExcludes>true</useDefaultExcludes>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.1.0</version>
+                <inherited>true</inherited>
+                <executions>
+                    <execution>
+                        <id>bundle-sources</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <maxmemory>1024</maxmemory>
+                    <encoding>UTF-8</encoding>
+                    <show>protected</show>
+                    <notree>true</notree>
+
+                    <!-- Avoid running into Java 8's very restrictive doclint issues -->
+                    <failOnError>false</failOnError>
+                    <doclint>none</doclint>
+                </configuration>
+            </plugin>
+
+            <!-- 配置方式：https://central.sonatype.org/publish/publish-portal-maven/#deploymentname -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.4.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <tokenAuth>true</tokenAuth>
+                    <autoPublish>true</autoPublish>
+                    <excludeArtifacts>
+                        <excludeArtifact>wmrpc-demo-api</excludeArtifact>
+                        <excludeArtifact>wmrpc-demo-provider</excludeArtifact>
+                        <excludeArtifact>wmrpc-demo-consumer</excludeArtifact>
+                    </excludeArtifacts>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
