@@ -16,16 +16,16 @@ import org.springframework.context.annotation.Configuration;
 public class ConsumerConfigProperties {
 
     // for ha and governance
-    private int retries;
+    private int retries = 1;
 
-    private int timeout;
+    private int timeout = 1000;
 
-    private int faultLimit;
+    private int faultLimit = 10;
 
-    private int halfOpenInitialDelay;
+    private int halfOpenInitialDelay = 10_000;
 
-    private int halfOpenDelay;
+    private int halfOpenDelay = 60_000;
 
-    private int grayRatio;
+    private int grayRatio = 0;
 
 }
