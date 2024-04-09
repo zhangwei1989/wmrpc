@@ -6,7 +6,7 @@
     <parent>
         <groupId>cn.william</groupId>
         <artifactId>wmrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${wmrpc.version}</version>
     </parent>
 
     <artifactId>wmrpc-demo-consumer</artifactId>
@@ -15,17 +15,17 @@
         <dependency>
             <groupId>cn.william</groupId>
             <artifactId>wmrpc-demo-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${wmrpc.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.william</groupId>
             <artifactId>wmrpc-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${wmrpc.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.william</groupId>
             <artifactId>wmrpc-demo-provider</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${wmrpc.version}</version>
             <scope>test</scope>
         </dependency>
 

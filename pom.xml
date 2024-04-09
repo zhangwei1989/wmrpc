@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.william</groupId>
     <artifactId>wmrpc</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${wmrpc.version}</version>
     <name>wmrpc</name>
     <description>wmrpc</description>
     <packaging>pom</packaging>
@@ -20,6 +20,7 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <wmrpc.version>0.0.1-SNAPSHOT</wmrpc.version>
     </properties>
 
     <dependencyManagement>
