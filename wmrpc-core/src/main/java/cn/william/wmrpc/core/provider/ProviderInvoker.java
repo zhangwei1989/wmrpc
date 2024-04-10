@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.api.RpcException;
+import cn.william.wmrpc.core.governance.SlidingTimeWindow;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,11 @@ import org.springframework.util.MultiValueMap;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static cn.william.wmrpc.core.api.RpcException.ExceedLimitEx;
 
 /**
  * 服务端调用层
@@ -25,6 +30,10 @@ public class ProviderInvoker {
 
     private MultiValueMap<String, ProviderMeta> skeleton;
 
+    private int tpsLimit = 20;
+
+    final Map<String, SlidingTimeWindow> windows = new HashMap<>();
+
     public ProviderInvoker(ProviderBootstrap providerBootstrap) {
         this.skeleton = providerBootstrap.getSkeleton();
     }
@@ -35,7 +44,21 @@ public class ProviderInvoker {
             request.getParams().forEach(RpcContext::setContextParameter);
         }
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
-        List<ProviderMeta> providerMetas = skeleton.get(request.getService());
+
+        String service = request.getService();
+        synchronized (windows) {
+            SlidingTimeWindow window = windows.computeIfAbsent(service, k -> new SlidingTimeWindow());
+            if (window.calcSum() >= tpsLimit) {
+                System.out.println(window);
+                throw new RpcException("service " + service + " invoked in 30s/[" +
+                        window.getSum() + "] larger than tpsLimit = " + tpsLimit, ExceedLimitEx);
+            }
+            window.record(System.currentTimeMillis());
+            log.debug("service {} in window with {}", service, window.getSum());
+        }
+
+        List<ProviderMeta> providerMetas = skeleton.get(service);
+
         try {
             ProviderMeta meta = findProviderMeta(providerMetas, request.getMethodSign());
 
