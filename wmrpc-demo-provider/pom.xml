@@ -5,10 +5,10 @@
     <parent>
         <groupId>cn.william</groupId>
         <artifactId>wmrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${wmrpc.version}</version>
     </parent>
     <artifactId>wmrpc-demo-provider</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${wmrpc.version}</version>
     <name>wmrpc-demo-provider</name>
     <description>wmrpc-demo-provider</description>
 
@@ -32,12 +32,12 @@
         <dependency>
             <groupId>cn.william</groupId>
             <artifactId>wmrpc-demo-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${wmrpc.version}</version>
         </dependency>
         <dependency>
             <groupId>cn.william</groupId>
             <artifactId>wmrpc-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>${wmrpc.version}</version>
         </dependency>
     </dependencies>
 
@@ -47,6 +47,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <classifier>boot</classifier>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

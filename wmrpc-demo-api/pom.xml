@@ -5,10 +5,10 @@
     <parent>
         <groupId>cn.william</groupId>
         <artifactId>wmrpc</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>${wmrpc.version}</version>
     </parent>
     <artifactId>wmrpc-demo-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>${wmrpc.version}</version>
     <name>wmrpc-demo-api</name>
     <description>wmrpc-demo-api</description>
 
