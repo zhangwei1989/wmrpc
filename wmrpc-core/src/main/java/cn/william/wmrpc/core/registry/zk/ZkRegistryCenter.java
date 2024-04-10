@@ -39,8 +39,15 @@ public class ZkRegistryCenter implements RegistryCenter {
     @Value("${wmrpc.zk.root}")
     String root;
 
+    private boolean running = false;
+
     @Override
     public void start() {
+        if(running) {
+            log.info(" ===> zk client has started to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
+
         RetryPolicy retryPolicy = new ExponentialBackoffRetry(1000, 3);
         client = CuratorFrameworkFactory.builder()
                 .connectString(servers)
@@ -53,6 +60,10 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     @Override
     public void stop() {
+        if(!running) {
+            log.info(" ===> zk client isn't running to server[" + servers + "/" + root + "], ignored.");
+            return;
+        }
         log.info("ZK client stopping");
         client.close();
     }
