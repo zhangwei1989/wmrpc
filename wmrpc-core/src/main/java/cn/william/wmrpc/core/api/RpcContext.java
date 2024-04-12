@@ -1,5 +1,7 @@
 package cn.william.wmrpc.core.api;
 
+import cn.william.wmrpc.core.config.AppConfigProperties;
+import cn.william.wmrpc.core.config.ConsumerConfigProperties;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import lombok.Data;
 
@@ -22,11 +24,9 @@ public class RpcContext {
 
     LoadBalancer<InstanceMeta> loadBalancer;
 
-    Map<String, String> parameters = new HashMap<>();
+    AppConfigProperties appConfigProperties;
 
-    public String param(String key) {
-        return parameters.get(key);
-    }
+    ConsumerConfigProperties consumerConfigProperties;
 
     public static ThreadLocal<Map<String, String>> ContextParameters = new ThreadLocal<>() {
         @Override

@@ -2,17 +2,16 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.config.AppConfigProperties;
+import cn.william.wmrpc.core.config.ProviderConfigProperties;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
-import cn.william.wmrpc.core.config.AppConfigProperties;
-import cn.william.wmrpc.core.config.ProviderConfigProperties;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -26,7 +25,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 /**
- * Description for this class.
+ * 服务提供者启动类.
  *
  * @Author : zhangwei(zhangwei19890518@gmail.com)
  * @Create : 2024/3/7 22:16
@@ -36,7 +35,7 @@ import java.util.Map;
 public class ProviderBootstrap implements ApplicationContextAware {
 
     @Autowired
-    ApplicationContext context;
+    ApplicationContext applicationContext;
 
     private InstanceMeta instance;
 
@@ -58,8 +57,8 @@ public class ProviderBootstrap implements ApplicationContextAware {
 
     @PostConstruct
     public void init() {
-        rc = context.getBean(RegistryCenter.class);
-        Map<String, Object> providers = context.getBeansWithAnnotation(WmProvider.class);
+        rc = applicationContext.getBean(RegistryCenter.class);
+        Map<String, Object> providers = applicationContext.getBeansWithAnnotation(WmProvider.class);
         providers.forEach((x, y) -> log.info(x));
         providers.values().forEach(this::genInterface);
     }
@@ -131,8 +130,4 @@ public class ProviderBootstrap implements ApplicationContextAware {
         skeleton.add(service.getCanonicalName(), providerMeta);
     }
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.context = applicationContext;
-    }
 }

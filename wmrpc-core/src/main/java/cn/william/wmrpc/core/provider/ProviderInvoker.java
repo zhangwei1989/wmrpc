@@ -1,13 +1,15 @@
 package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.api.RpcContext;
+import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
-import cn.william.wmrpc.core.api.RpcException;
+import cn.william.wmrpc.core.config.ProviderConfigProperties;
 import cn.william.wmrpc.core.governance.SlidingTimeWindow;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.util.TypeUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
@@ -30,7 +32,8 @@ public class ProviderInvoker {
 
     private MultiValueMap<String, ProviderMeta> skeleton;
 
-    private int tpsLimit = 20;
+    @Autowired
+    private ProviderConfigProperties providerConfigProperties;
 
     final Map<String, SlidingTimeWindow> windows = new HashMap<>();
 
@@ -40,7 +43,7 @@ public class ProviderInvoker {
 
     public RpcResponse<Object> invoke(RpcRequest request) {
         log.debug(" ===> ProviderInvoker.invoke(request:{})", request);
-        if(!request.getParams().isEmpty()) {
+        if (!request.getParams().isEmpty()) {
             request.getParams().forEach(RpcContext::setContextParameter);
         }
         RpcResponse<Object> rpcResponse = new RpcResponse<>();
@@ -48,6 +51,7 @@ public class ProviderInvoker {
         String service = request.getService();
         synchronized (windows) {
             SlidingTimeWindow window = windows.computeIfAbsent(service, k -> new SlidingTimeWindow());
+            int tpsLimit = Integer.parseInt(providerConfigProperties.getMetas().get("tpsLimit"));
             if (window.calcSum() >= tpsLimit) {
                 System.out.println(window);
                 throw new RpcException("service " + service + " invoked in 30s/[" +

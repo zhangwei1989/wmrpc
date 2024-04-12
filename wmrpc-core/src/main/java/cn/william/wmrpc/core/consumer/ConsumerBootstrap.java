@@ -1,15 +1,15 @@
 package cn.william.wmrpc.core.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
-import cn.william.wmrpc.core.api.*;
+import cn.william.wmrpc.core.api.Filter;
+import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import cn.william.wmrpc.core.util.MethodUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.EnvironmentAware;
@@ -70,10 +70,10 @@ public class ConsumerBootstrap implements ApplicationContextAware, EnvironmentAw
     private Object createFromRegistry(Class<?> service, RpcContext context, RegistryCenter rc) {
         String serviceName = service.getCanonicalName();
         ServiceMeta serviceMeta = ServiceMeta.builder()
-                .app(context.param("app.id"))
-                .namespace(context.param("app.namespace"))
+                .app(context.getAppConfigProperties().getId())
+                .namespace(context.getAppConfigProperties().getNamespace())
                 .name(serviceName)
-                .env(context.param("app.env"))
+                .env(context.getAppConfigProperties().getEnv())
                 .build();
         List<InstanceMeta> providers = rc.fetchAll(serviceMeta);
 

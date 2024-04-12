@@ -2,17 +2,13 @@ package cn.william.wmrpc.core.config;
 
 import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.cluster.GrayRouter;
-import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
-import cn.william.wmrpc.core.filter.CacheFilter;
-import cn.william.wmrpc.core.filter.MockFilter;
 import cn.william.wmrpc.core.filter.ParameterFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +26,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({AppConfigProperties.class,ConsumerConfigProperties.class})
+@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
 public class ConsumerConfig {
 
     @Autowired
@@ -94,14 +90,8 @@ public class ConsumerConfig {
         context.setRouter(router);
         context.setLoadBalancer(loadBalancer);
         context.setFilters(filters);
-        context.getParameters().put("app.id", appConfigProperties.getId());
-        context.getParameters().put("app.namespace", appConfigProperties.getNamespace());
-        context.getParameters().put("app.env", appConfigProperties.getEnv());
-        context.getParameters().put("consumer.retries", String.valueOf(consumerConfigProperties.getRetries()));
-        context.getParameters().put("consumer.timeout", String.valueOf(consumerConfigProperties.getTimeout()));
-        context.getParameters().put("consumer.faultLimit", String.valueOf(consumerConfigProperties.getFaultLimit()));
-        context.getParameters().put("consumer.halfOpenInitialDelay", String.valueOf(consumerConfigProperties.getHalfOpenInitialDelay()));
-        context.getParameters().put("consumer.halfOpenDelay", String.valueOf(consumerConfigProperties.getHalfOpenDelay()));
+        context.setAppConfigProperties(appConfigProperties);
+        context.setConsumerConfigProperties(consumerConfigProperties);
         return context;
     }
 }

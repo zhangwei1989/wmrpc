@@ -5,7 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Description for this class.
+ * 消费者配置类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/4/8
@@ -22,7 +22,7 @@ public class ConsumerConfigProperties {
 
     private int faultLimit = 10;
 
-    private int halfOpenInitialDelay = 10_000;
+    private int halfOpenInitialDelay = 10000;
 
     private int halfOpenDelay = 60_000;
 

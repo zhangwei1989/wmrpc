@@ -49,13 +49,11 @@ public class WmInvocationHandler implements InvocationHandler {
         this.service = clazz;
         this.context = context;
         this.providers = providers;
-        int timeout = Integer.parseInt(context.getParameters().getOrDefault("consumer.timeout", "1000"));
+        int timeout = context.getConsumerConfigProperties().getTimeout();
         this.httpInvoker = new OkHttpInvoker(timeout);
         this.executor = Executors.newSingleThreadScheduledExecutor();
-        int halfOpenInitialDelay = Integer.parseInt(context.getParameters()
-                .getOrDefault("consumer.halfOpenInitialDelay", "10000"));
-        int halfOpenDelay = Integer.parseInt(context.getParameters()
-                .getOrDefault("consumer.halfOpenDelay", "60000"));
+        int halfOpenInitialDelay = context.getConsumerConfigProperties().getHalfOpenInitialDelay();
+        int halfOpenDelay = context.getConsumerConfigProperties().getHalfOpenDelay();
         this.executor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay, halfOpenDelay, TimeUnit.SECONDS);
     }
 
@@ -77,10 +75,8 @@ public class WmInvocationHandler implements InvocationHandler {
         rpcRequest.setMethodSign(MethodUtils.methodSign(method));
         rpcRequest.setArgs(args);
 
-        int retries = Integer.parseInt(context.getParameters()
-                .getOrDefault("consumer.retries", "1"));
-        int faultLimit = Integer.parseInt(context.getParameters().
-                getOrDefault("consumer.faultLimit", "5"));
+        int retries = context.getConsumerConfigProperties().getRetries();
+        int faultLimit = context.getConsumerConfigProperties().getFaultLimit();
         while (retries-- > 0) {
             log.info("======> reties: {}", retries);
 
