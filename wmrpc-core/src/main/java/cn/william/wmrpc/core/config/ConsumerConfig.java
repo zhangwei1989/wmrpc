@@ -1,4 +1,4 @@
-package cn.william.wmrpc.core.consumer;
+package cn.william.wmrpc.core.config;
 
 import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
@@ -6,13 +6,14 @@ import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
-import cn.william.wmrpc.core.registry.ZkRegistryCenter;
+import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
+import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 
 /**
@@ -23,14 +24,21 @@ import org.springframework.core.annotation.Order;
  */
 @Configuration
 @Slf4j
+@Import({AppConfigProperty.class, ConsumerConfigProperty.class, ZkConfigProperty.class})
 public class ConsumerConfig {
 
-    @Value("${wmrpc.grayRatio}")
-    private int grayRatio;
+    @Autowired
+    private AppConfigProperty appConfigProperty;
+
+    @Autowired
+    private ConsumerConfigProperty consumerConfigProperty;
+
+    @Autowired
+    private ZkConfigProperty zkConfigProperty;
 
     @Bean
     public ConsumerBootstrap consumerBootstrap() {
-        return new ConsumerBootstrap();
+        return new ConsumerBootstrap(appConfigProperty, consumerConfigProperty);
     }
 
     @Bean
@@ -52,17 +60,26 @@ public class ConsumerConfig {
 
     @Bean
     Router consumer_rt() {
-        return new GrayRouter(grayRatio);
+        return new GrayRouter(consumerConfigProperty.getGrayRatio());
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     RegistryCenter consumer_rc() {
-        return new ZkRegistryCenter();
+        return new ZkRegistryCenter(zkConfigProperty);
     }
 
     @Bean
     RpcContext rpcContext(@Autowired Router router, @Autowired LoadBalancer loadBalancer) {
-        return new RpcContext(router, loadBalancer);
+        RpcContext rpcContext = new RpcContext();
+        rpcContext.setRouter(router);
+        rpcContext.setLoadBalancer(loadBalancer);
+        rpcContext.getParameters().put("wmrpc.retires", String.valueOf(consumerConfigProperty.getRetries()));
+        rpcContext.getParameters().put("wmrpc.timeout", String.valueOf(consumerConfigProperty.getTimeout()));
+        rpcContext.getParameters().put("wmrpc.grayRatio", String.valueOf(consumerConfigProperty.getGrayRatio()));
+        rpcContext.getParameters().put("wmrpc.faultLimit", String.valueOf(consumerConfigProperty.getFaultLimit()));
+        rpcContext.getParameters().put("wmrpc.halfOpenInitialDelay", String.valueOf(consumerConfigProperty.getHalfOpenInitialDelay()));
+        rpcContext.getParameters().put("wmrpc.halfOpenDelay", String.valueOf(consumerConfigProperty.getHalfOpenDelay()));
+        return rpcContext;
     }
 
 //    @Bean

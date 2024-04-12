@@ -4,12 +4,12 @@ import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcFilter;
+import cn.william.wmrpc.core.config.AppConfigProperty;
+import cn.william.wmrpc.core.config.ConsumerConfigProperty;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Description for this class.
+ * 消费者启动类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/7 22:16
@@ -29,39 +29,23 @@ import java.util.Map;
 @Slf4j
 public class ConsumerBootstrap implements ApplicationContextAware {
 
+    private AppConfigProperty appConfigProperty;
+
+    private ConsumerConfigProperty consumerConfigProperty;
+
     private ApplicationContext context;
-
-    @Autowired
-    private RpcContext rpcContext;
-
-    @Autowired
-    private RegistryCenter registryCenter;
-
-    @Value("${wmrpc.app}")
-    private String app;
-
-    @Value("${wmrpc.namespace}")
-    private String namespace;
-
-    @Value("${wmrpc.env}")
-    private String env;
-
-    @Value("${wmrpc.version}")
-    private String version;
-
-    @Value("${wmrpc.retries}")
-    private int retries;
-
-    @Value("${wmrpc.timeout}")
-    private int timeout;
 
     private Map<String, Object> stub = new HashMap<>();
 
+    public ConsumerBootstrap(AppConfigProperty appConfigProperty, ConsumerConfigProperty consumerConfigProperty) {
+        this.appConfigProperty = appConfigProperty;
+        this.consumerConfigProperty = consumerConfigProperty;
+    }
+
     public void start() {
         String[] names = context.getBeanDefinitionNames();
-        // 配置存入 rpcContext 中
-        rpcContext.getParameters().put("wmrpc.retires", String.valueOf(retries));
-        rpcContext.getParameters().put("wmrpc.timeout", String.valueOf(timeout));
+        RpcContext rpcContext = context.getBean(RpcContext.class);
+        RegistryCenter registryCenter = context.getBean(RegistryCenter.class);
 
         // RpcFilter 存入 rpcContext 中
         String[] beanNamesForType = context.getBeanNamesForType(RpcFilter.class);
@@ -87,17 +71,17 @@ public class ConsumerBootstrap implements ApplicationContextAware {
 
                         if (proxyService == null) {
                             ServiceMeta serviceMeta = ServiceMeta.builder()
-                                    .app(app)
-                                    .namespace(namespace)
+                                    .app(appConfigProperty.getId())
+                                    .namespace(appConfigProperty.getNamespace())
                                     .name(serviceName)
-                                    .env(env)
-                                    .version(version)
+                                    .env(appConfigProperty.getEnv())
+                                    .version(appConfigProperty.getVersion())
                                     .build();
                             List<InstanceMeta> providers = registryCenter.fetchAll(serviceMeta);
                             log.info("======> consumer fetchAll nodes are: ");
                             providers.stream().forEach(System.out::println);
 
-                            subcribeToRC(serviceMeta, providers);
+                            subcribeToRC(registryCenter, serviceMeta, providers);
 
                             proxyService = createProxy(service, rpcContext, providers);
                         }
@@ -119,7 +103,7 @@ public class ConsumerBootstrap implements ApplicationContextAware {
         }
     }
 
-    private void subcribeToRC(ServiceMeta serviceMeta, List<InstanceMeta> providers) {
+    private void subcribeToRC(RegistryCenter registryCenter, ServiceMeta serviceMeta, List<InstanceMeta> providers) {
         registryCenter.subscribe(serviceMeta, event -> {
             providers.clear();
             providers.addAll(event.getData());

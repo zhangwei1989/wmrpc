@@ -2,6 +2,8 @@ package cn.william.wmrpc.core.provider;
 
 import cn.william.wmrpc.core.annotation.WmProvider;
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.config.AppConfigProperty;
+import cn.william.wmrpc.core.config.ProviderConfigProperty;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ProviderMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
@@ -33,38 +35,31 @@ import java.util.Map;
 @Slf4j
 public class ProviderBootstrap implements ApplicationContextAware {
 
+    private AppConfigProperty appConfigProperty;
+
+    private ProviderConfigProperty providerConfigProperty;
+
     ApplicationContext context;
 
     private RegistryCenter rc;
 
-    @Value("${server.port}")
+    @Value("${server.port:8081}")
     private Integer port;
-
-    @Value("${wmrpc.app}")
-    private String app;
-
-    @Value("${wmrpc.namespace}")
-    private String namespace;
-
-    @Value("${wmrpc.env}")
-    private String env;
-
-    @Value("${wmrpc.version}")
-    private String version;
-
-    @Value("#{${wmrpc.metas}}")
-    private Map<String, String> metas;
 
     private InstanceMeta instanceMeta;
 
     private MultiValueMap<String, ProviderMeta> skeleton = new LinkedMultiValueMap<>();
+
+    public ProviderBootstrap(AppConfigProperty appConfigProperty, ProviderConfigProperty providerConfigProperty) {
+        this.appConfigProperty = appConfigProperty;
+        this.providerConfigProperty = providerConfigProperty;
+    }
 
     @PostConstruct
     public void buildProviders() {
         rc = context.getBean(RegistryCenter.class);
         Map<String, Object> providers = context.getBeansWithAnnotation(WmProvider.class);
         providers.forEach((x, y) -> System.out.println(x));
-//        skeleton.putAll(providers);
         providers.values().forEach(x ->
                 genInterface(x));
     }
@@ -73,15 +68,15 @@ public class ProviderBootstrap implements ApplicationContextAware {
     public void start() {
         String ip = InetAddress.getLocalHost().getHostAddress();
         instanceMeta = InstanceMeta.builder().scheme("http").host(ip).port(port).build();
-        instanceMeta.setParameters(metas);
+        instanceMeta.setParameters(providerConfigProperty.getMetas());
         rc.start();
         skeleton.keySet().stream().forEach(service -> {
             ServiceMeta serviceMeta = ServiceMeta.builder()
-                    .app(app)
-                    .namespace(namespace)
+                    .app(appConfigProperty.getId())
+                    .namespace(appConfigProperty.getNamespace())
                     .name(service)
-                    .env(env)
-                    .version(version)
+                    .env(appConfigProperty.getEnv())
+                    .version(appConfigProperty.getVersion())
                     .build();
             rc.register(serviceMeta, instanceMeta);
         });
@@ -93,11 +88,11 @@ public class ProviderBootstrap implements ApplicationContextAware {
         RegistryCenter rc = context.getBean(RegistryCenter.class);
         skeleton.keySet().stream().forEach(service -> {
             ServiceMeta serviceMeta = ServiceMeta.builder()
-                    .app(app)
-                    .namespace(namespace)
+                    .app(appConfigProperty.getId())
+                    .namespace(appConfigProperty.getNamespace())
                     .name(service)
-                    .env(env)
-                    .version(version)
+                    .env(appConfigProperty.getEnv())
+                    .version(appConfigProperty.getVersion())
                     .build();
             rc.unregister(serviceMeta, instanceMeta);
         });

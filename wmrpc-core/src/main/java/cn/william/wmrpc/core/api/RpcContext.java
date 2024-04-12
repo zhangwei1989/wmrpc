@@ -1,7 +1,8 @@
 package cn.william.wmrpc.core.api;
 
 import cn.william.wmrpc.core.meta.InstanceMeta;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
@@ -14,7 +15,8 @@ import java.util.Map;
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/18
  */
-@Getter
+@Data
+@NoArgsConstructor
 public class RpcContext {
 
     private Router<InstanceMeta> router;
@@ -25,10 +27,5 @@ public class RpcContext {
     private List<RpcFilter> filters;
 
     private Map<String, String> parameters = new HashMap<>();
-
-    public RpcContext(Router router, LoadBalancer loadBalancer) {
-        this.router = router;
-        this.loadBalancer = loadBalancer;
-    }
 
 }

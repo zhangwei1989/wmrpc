@@ -2,7 +2,7 @@ package cn.william.wmrpc.demo.provider;
 
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
-import cn.william.wmrpc.core.provider.ProviderConfig;
+import cn.william.wmrpc.core.config.ProviderConfig;
 import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

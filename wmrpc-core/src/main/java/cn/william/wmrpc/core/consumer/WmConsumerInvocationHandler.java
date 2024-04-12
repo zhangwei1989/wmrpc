@@ -20,15 +20,13 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Description for this class.
+ * 消费者远程调用代理增强类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/13
  */
 @Slf4j
 public class WmConsumerInvocationHandler implements InvocationHandler {
-
-//    private static ApplicationContext applicationContext;
 
     private RpcContext rpcContext;
 
@@ -55,8 +53,12 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         this.providers = providers;
         okHttpInvoker = new OkHttpInvoker(
                 Integer.parseInt(rpcContext.getParameters().getOrDefault("wmrpc.timeout", "1000")));
+        int halfOpenInitialDelay = Integer.parseInt(
+                rpcContext.getParameters().getOrDefault("wmrpc.halfOpenInitialDelay", "1000"));
+        int halfOpenDelay = Integer.parseInt(
+                rpcContext.getParameters().getOrDefault("wmrpc.halfOpenDelay", "30"));
         executor = Executors.newSingleThreadScheduledExecutor();
-        executor.scheduleWithFixedDelay(this::halfOpen, 10, 30, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this::halfOpen, halfOpenInitialDelay, halfOpenDelay, TimeUnit.SECONDS);
     }
 
     private void halfOpen() {
@@ -87,6 +89,8 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
 
         int retries = Integer.parseInt(rpcContext.getParameters()
                 .getOrDefault("wmrpc.retires", "1"));
+        int faultLimit = Integer.parseInt(rpcContext.getParameters()
+                .getOrDefault("wmrpc.faultLimit", "10"));
 
         while (retries-- > 0) {
             try {
@@ -116,7 +120,7 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
                     log.info("======> instance {} added to window, current sum is {}", path, window.getSum());
 
                     // 满足设置的最高次数，则进行故障隔离设置
-                    if (window.getSum() >= 10) {
+                    if (window.getSum() >= faultLimit) {
                         isolatedProviders.add(instance);
                         providers.remove(instance);
                         log.debug("======> complete fault tolenance, current isolatedProviders: {}", isolatedProviders);

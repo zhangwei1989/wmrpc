@@ -1,24 +1,34 @@
-package cn.william.wmrpc.core.provider;
+package cn.william.wmrpc.core.config;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
-import cn.william.wmrpc.core.registry.ZkRegistryCenter;
+import cn.william.wmrpc.core.provider.ProviderBootstrap;
+import cn.william.wmrpc.core.provider.ProviderInvoker;
+import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
-
-import java.util.List;
 
 @Configuration
 @Slf4j
+@Import({AppConfigProperty.class, ProviderConfigProperty.class, ZkConfigProperty.class})
 public class ProviderConfig {
+
+    @Autowired
+    private AppConfigProperty appConfigProperty;
+
+    @Autowired
+    private ProviderConfigProperty providerConfigProperty;
+
+    @Autowired
+    private ZkConfigProperty zkConfigProperty;
 
     @Bean
     ProviderBootstrap providerBootstrap() {
-        return new ProviderBootstrap();
+        return new ProviderBootstrap(appConfigProperty, providerConfigProperty);
     }
 
     @Bean
@@ -37,8 +47,9 @@ public class ProviderConfig {
         };
     }
 
-    @Bean // (initMethod = "start", destroyMethod = "stop")
+    @Bean
+        // (initMethod = "start", destroyMethod = "stop")
     RegistryCenter provider_rc() {
-        return new ZkRegistryCenter();
+        return new ZkRegistryCenter(zkConfigProperty);
     }
 }

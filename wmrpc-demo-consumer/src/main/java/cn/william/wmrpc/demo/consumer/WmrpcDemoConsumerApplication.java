@@ -3,7 +3,7 @@ package cn.william.wmrpc.demo.consumer;
 import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.cluster.GrayRouter;
-import cn.william.wmrpc.core.consumer.ConsumerConfig;
+import cn.william.wmrpc.core.config.ConsumerConfig;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;

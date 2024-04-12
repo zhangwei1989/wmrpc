@@ -1,8 +1,11 @@
-package cn.william.wmrpc.core.registry;
+package cn.william.wmrpc.core.registry.zk;
 
 import cn.william.wmrpc.core.api.RegistryCenter;
+import cn.william.wmrpc.core.config.ZkConfigProperty;
 import cn.william.wmrpc.core.meta.InstanceMeta;
 import cn.william.wmrpc.core.meta.ServiceMeta;
+import cn.william.wmrpc.core.registry.ChangedListener;
+import cn.william.wmrpc.core.registry.Event;
 import com.alibaba.fastjson.JSON;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +14,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.BoundedExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,18 +31,18 @@ public class ZkRegistryCenter implements RegistryCenter {
 
     private CuratorFramework client;
 
-    @Value("${wmrpc.zk.url}")
-    private String url;
+    private ZkConfigProperty zkConfigProperty;
 
-    @Value("${wmrpc.zk.namespace}")
-    private String namespace;
+    public ZkRegistryCenter(ZkConfigProperty zkConfigProperty) {
+        this.zkConfigProperty = zkConfigProperty;
+    }
 
     @Override
     public void start() {
         // 创建 ZK 客户端
         client = CuratorFrameworkFactory.builder()
-                .connectString(url)
-                .namespace(namespace)
+                .connectString(zkConfigProperty.getServer())
+                .namespace(zkConfigProperty.getRoot())
                 .retryPolicy(new BoundedExponentialBackoffRetry(1000, 1000, 3))
                 .build();
         client.start();
