@@ -3,30 +3,39 @@ package cn.william.wmrpc.demo.provider;
 import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.config.ApolloChangedListener;
 import cn.william.wmrpc.core.config.ProviderConfig;
+import cn.william.wmrpc.core.config.ProviderConfigProperties;
 import cn.william.wmrpc.core.transport.SpringBootTransport;
-import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
+import com.ctrip.framework.apollo.spring.annotation.EnableApolloConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @Import(ProviderConfig.class)
+@RestController
+@EnableApolloConfig
 public class WmrpcDemoProviderApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(WmrpcDemoProviderApplication.class, args);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "apollo.bootstrap", value = "enabled")
+    ApolloChangedListener apolloChangedListener() {
+        return new ApolloChangedListener();
     }
 
     @Autowired
@@ -34,6 +43,9 @@ public class WmrpcDemoProviderApplication {
 
     @Autowired
     SpringBootTransport transport;
+
+    @Autowired
+    ProviderConfigProperties providerConfigProperties;
 
     @RequestMapping("/ports")
     public RpcResponse<String> ports(@RequestParam("ports") String ports) {
@@ -44,9 +56,18 @@ public class WmrpcDemoProviderApplication {
         return response;
     }
 
+    @RequestMapping("/meta")
+    public String meta() {
+        return providerConfigProperties.getMetas().toString();
+    }
+
     @Bean
     ApplicationRunner providerRun() {
         return x -> {
+            providerConfigProperties.getMetas().forEach((k, v) -> {
+                System.out.println("ProviderConfigProperties: " + k + " = " + v);
+            });
+
             testAll();
         };
     }
@@ -98,14 +119,14 @@ public class WmrpcDemoProviderApplication {
 
         // test 5 for traffic control
         System.out.println("Provider Case 5. >>===[复杂测试：测试流量并发控制===");
-        for (int i = 0; i < 60; i++) {
+        for (int i = 0; i < 2; i++) {
             try {
                 Thread.sleep(1000);
                 RpcResponse<Object> r = transport.invoke(request);
-                System.out.println(i + " ***>>> " +r.getData());
+                System.out.println(i + " ***>>> " + r.getData());
             } catch (RpcException e) {
                 // ignore
-                System.out.println(i + " ***>>> " +e.getMessage() + " -> " + e.getErrcode());
+                System.out.println(i + " ***>>> " + e.getMessage() + " -> " + e.getErrcode());
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

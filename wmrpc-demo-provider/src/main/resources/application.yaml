@@ -15,6 +15,20 @@ wmrpc:
       gray: false
       unit: B001
 
+app:
+  id: app2
+
+apollo:
+  cacheDir: /Users/zhangwei/Downloads/programs/apollo-quick-start-2.2.0/data/
+  cluster: default
+  meta: http://localhost:8080
+  autoUpdateInjectedSpringProperties: true
+  bootstrap:
+    enabled: true
+    namespaces: app2
+    eagerLoad:
+      enabled: false
+
 logging:
   level:
     root: error

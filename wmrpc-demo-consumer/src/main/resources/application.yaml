@@ -1,5 +1,5 @@
 server:
-  port: 8088
+  port: 8091
 
 wmrpc:
   zk:
@@ -16,6 +16,20 @@ wmrpc:
     faultLimit: 10
     halfOpenInitialDelay: 10000
     halfOpenDelay: 60000
+
+app:
+  id: app2
+
+apollo:
+  cacheDir: /Users/zhangwei/Downloads/programs/apollo-quick-start-2.2.0/data/
+  cluster: default
+  meta: http://localhost:8080
+  autoUpdateInjectedSpringProperties: true
+  bootstrap:
+    enabled: true
+    namespaces: app2
+    eagerLoad:
+      enabled: false
 
 logging:
   level:

@@ -8,7 +8,10 @@ GET http://localhost:8088/find/?timeout=1500
 GET http://localhost:8088/gray/?ratio=100
 
 ### 获取8088调用修改超
-GET http://localhost:8082/ports?ports=8081
+GET http://localhost:8081/ports?ports=8081
+
+### 获取8088调用修改超
+GET http://localhost:8081/meta
 
 ### 获取用户信息
 POST http://localhost:8082/
