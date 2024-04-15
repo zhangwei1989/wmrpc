@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.api.RegistryCenter;
 import cn.william.wmrpc.core.provider.ProviderBootstrap;
 import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
+import cn.william.wmrpc.core.transport.SpringHttpTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -14,7 +15,7 @@ import org.springframework.core.annotation.Order;
 
 @Configuration
 @Slf4j
-@Import({AppConfigProperty.class, ProviderConfigProperty.class, ZkConfigProperty.class})
+@Import({AppConfigProperty.class, ProviderConfigProperty.class, ZkConfigProperty.class, SpringHttpTransport.class})
 public class ProviderConfig {
 
     @Autowired

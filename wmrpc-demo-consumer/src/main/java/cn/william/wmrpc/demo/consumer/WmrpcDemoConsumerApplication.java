@@ -26,8 +26,8 @@ import java.util.Map;
 
 @SpringBootApplication
 @RestController
-@Import(ConsumerConfig.class)
 @Slf4j
+@Import(ConsumerConfig.class)
 public class WmrpcDemoConsumerApplication {
 
     @WmConsumer

@@ -31,7 +31,7 @@ public class InstanceMeta {
     }
 
     public String http() {
-        return String.format("%s://%s:%d", scheme, host, port);
+        return String.format("%s://%s:%d", scheme, host, port) + "/wmrpc";
     }
 
     public String toMetas() {
