@@ -6,11 +6,10 @@ import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Description for this class.
+ * OkHttpInvoker 类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/22
