@@ -1,12 +1,17 @@
-### 获取8090用户信息
-GET http://localhost:8090/?id=1000
+## Consumer
+### 获取8091用户信息
+GET http://localhost:8091/?id=1000
 
-### 获取8090调用超时信息
-GET http://localhost:8090/find/?timeout=1500
+### 获取8091调用超时信息
+GET http://localhost:8091/find/?timeout=1500
 
-### 调整8090灰度比例
-GET http://localhost:8090/gray?ratio=100
+### 调整8091灰度比例
+GET http://localhost:8091/gray?ratio=100
 
+### 查询8091消费者最新配置参数
+GET http://localhost:8091/consumer/configuration
+
+## Provider
 ### 获取provider 8081端接口调整 ports
 GET http://localhost:8081/ports?ports=8082
 

@@ -82,6 +82,11 @@ public class ConsumerConfig {
         return rpcContext;
     }
 
+    @Bean
+    ApolloChangedEventListener apolloChangedEventListener() {
+        return new ApolloChangedEventListener();
+    }
+
 //    @Bean
 //    RpcFilter filter() {
 //        return new MockFilter();

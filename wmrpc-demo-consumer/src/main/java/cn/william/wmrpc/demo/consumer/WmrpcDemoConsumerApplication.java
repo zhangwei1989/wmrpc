@@ -4,6 +4,7 @@ import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.Router;
 import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.config.ConsumerConfig;
+import cn.william.wmrpc.core.config.ConsumerConfigProperty;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,9 @@ public class WmrpcDemoConsumerApplication {
     @Autowired
     private Router router;
 
+    @Autowired
+    private ConsumerConfigProperty consumerConfigProperty;
+
 //    @WmConsumer
 //    private OrderService orderService;
 
@@ -55,6 +59,11 @@ public class WmrpcDemoConsumerApplication {
     public String gray(@RequestParam("ratio") int ratio) {
         ((GrayRouter) router).setGrayRatio(ratio);
         return "OK, gray ratio is set to :" + ratio;
+    }
+
+    @RequestMapping("/consumer/configuration")
+    public Integer configuration() {
+        return consumerConfigProperty.getGrayRatio();
     }
 
     @Bean
