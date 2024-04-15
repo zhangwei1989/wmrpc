@@ -1,9 +1,6 @@
 package cn.william.wmrpc.core.consumer;
 
-import cn.william.wmrpc.core.api.RpcContext;
-import cn.william.wmrpc.core.api.RpcFilter;
-import cn.william.wmrpc.core.api.RpcRequest;
-import cn.william.wmrpc.core.api.RpcResponse;
+import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.client.OkHttpInvoker;
 import cn.william.wmrpc.core.goverance.SlidingTimeWindow;
 import cn.william.wmrpc.core.meta.InstanceMeta;
@@ -152,12 +149,12 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
         return null;
     }
 
-    private static Object castRpcResponseToResult(Method method, RpcResponse rpcResponse) throws Exception {
+    private static Object castRpcResponseToResult(Method method, RpcResponse rpcResponse) {
         if (rpcResponse.isStatus()) {
             Object data = rpcResponse.getData();
             return TypeUtils.castMethodResult(method, data);
         } else {
-            Exception ex = rpcResponse.getException();
+            RpcException ex = rpcResponse.getException();
             throw ex;
         }
     }
