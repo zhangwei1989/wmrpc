@@ -2,6 +2,7 @@ package cn.william.wmrpc.demo.consumer;
 
 import cn.william.wmrpc.core.annotation.WmConsumer;
 import cn.william.wmrpc.core.api.Router;
+import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.config.ConsumerConfig;
 import cn.william.wmrpc.core.config.ConsumerConfigProperty;
@@ -76,8 +77,8 @@ public class WmrpcDemoConsumerApplication {
 //                log.warn("=============> userService.getId(1000);, the result is {}", userService.getId(1000));
 //
 //                log.warn("=============> userService.getId(new User(100, \"WM\");, the result is {}", userService.getId(new User(100, "WM")));
-                User user = userService.findById(1);
-                System.out.println("RPC result userService.findById(1) = " + user);
+//                User user = userService.findById(1);
+//                System.out.println("RPC result userService.findById(1) = " + user);
 //
 //                Order order = orderService.findById(2);
 //                System.out.println("RPC result orderService.findById(2) = " + order);
@@ -104,19 +105,33 @@ public class WmrpcDemoConsumerApplication {
 //                // 验证方法参数是数组
 //                log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", Arrays.toString(userService.getIds(new int[]{4, 5, 6})));
                 // 参数和返回值里，map 里面有数组，数组里面有 User
-                User user1 = new User(1, "zw");
-                User user2 = new User(2, "wcl");
-                User user3 = new User(3, "zja");
+//                User user1 = new User(1, "zw");
+//                User user2 = new User(2, "wcl");
+//                User user3 = new User(3, "zja");
+//
+//                List<User> userList = new ArrayList<>();
+//                userList.add(user1);
+//                userList.add(user2);
+//                userList.add(user3);
+//
+//                Map<String, List> map = new HashMap<>();
+//
+//                map.put("userMap", userList);
+//                log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", userService.getMutipleUser(map));
 
-                List<User> userList = new ArrayList<>();
-                userList.add(user1);
-                userList.add(user2);
-                userList.add(user3);
-
-                Map<String, List> map = new HashMap<>();
-
-                map.put("userMap", userList);
-                log.info("=============> userService.getIds(new int[]{4,5,6}), the result is {}", userService.getMutipleUser(map));
+                System.out.println("Case 19. >>===[测试通过Context跨消费者和提供者进行传参]===");
+                String Key_Version = "rpc.version";
+                String Key_Message = "rpc.message";
+                RpcContext.setContextParams(Key_Version, "v8");
+                RpcContext.setContextParams(Key_Message, "this is a v8 message");
+                RpcContext.setContextParams("a", "a100");
+                String version = userService.echoParameter(Key_Version);
+                RpcContext.setContextParams(Key_Version, "v9");
+                RpcContext.setContextParams(Key_Message, "this is a v9 message");
+                RpcContext.setContextParams("b", "b200");
+                String message = userService.echoParameter(Key_Message);
+                System.out.println(" ===> echo parameter from c->p->c: " + Key_Version + " -> " + version);
+                System.out.println(" ===> echo parameter from c->p->c: " + Key_Message + " -> " + message);
             }
         };
     }

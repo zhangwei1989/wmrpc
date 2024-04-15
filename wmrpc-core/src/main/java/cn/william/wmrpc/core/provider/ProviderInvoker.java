@@ -1,5 +1,6 @@
 package cn.william.wmrpc.core.provider;
 
+import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.api.RpcException;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
@@ -21,7 +22,7 @@ import java.util.Map;
 import static cn.william.wmrpc.core.api.RpcException.TPSLIMIT_EXCEED_ERRCODE;
 
 /**
- * Description for this class.
+ * ProviderInvoker
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/22
@@ -67,6 +68,14 @@ public class ProviderInvoker {
                 window.record(System.currentTimeMillis());
             }
 
+            // 处理传参逻辑
+            Map<String, String> requestParams = request.getParameters();
+            if (!requestParams.isEmpty()) {
+                for (String key : requestParams.keySet()) {
+                    RpcContext.setContextParams(key, requestParams.get(key));
+                }
+            }
+
             Object[] autualArgs = processArgs(method, request.getArgs());
             Object result = method.invoke(providerMeta.getBean(), autualArgs);
             response.setStatus(true);
@@ -75,6 +84,9 @@ public class ProviderInvoker {
             response.setException(new RpcException(e.getTargetException().getMessage()));
         } catch (IllegalAccessException e) {
             response.setException(new RpcException(e.getMessage()));
+        } finally {
+            // 防止内存泄露和上下文污染
+            RpcContext.removeContextParams();
         }
 
         return response;

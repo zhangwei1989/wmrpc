@@ -28,4 +28,24 @@ public class RpcContext {
 
     private Map<String, String> parameters = new HashMap<>();
 
+    private static ThreadLocal<Map<String, String>> contextParamsHolder =
+            ThreadLocal.withInitial(() -> new HashMap<>());
+
+    public static Map<String, String> getContextParams() {
+        return contextParamsHolder.get();
+    }
+
+    public static String getContextParam(String key) {
+        return contextParamsHolder.get().get(key);
+    }
+
+    public static Map<String, String> setContextParams(String key, String value) {
+        contextParamsHolder.get().putIfAbsent(key, value);
+        return getContextParams();
+    }
+
+    public static void removeContextParams() {
+        contextParamsHolder.get().clear();
+    }
+
 }

@@ -2,6 +2,9 @@ package cn.william.wmrpc.core.api;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Description for this class.
  *
@@ -16,5 +19,7 @@ public class RpcRequest {
     private String methodSign;   // 方法：findById
 
     private Object[] args;   // 参数：100
+
+    private Map<String, String> parameters = new HashMap<>(); // 向服务端携带额外参数媒介
 
 }

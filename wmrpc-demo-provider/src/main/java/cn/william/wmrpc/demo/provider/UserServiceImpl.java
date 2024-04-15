@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
+import cn.william.wmrpc.core.api.RpcContext;
 
 import java.util.Arrays;
 import java.util.List;
@@ -97,5 +98,13 @@ public class UserServiceImpl implements UserService {
     public void setPorts(String ports) {
         this.ports = ports;
         log.debug("current ports set to : {}", ports);
+    }
+
+    @Override
+    public String echoParameter(String key) {
+        System.out.println(" ======>>> RpcContext.ContextParameters: ");
+
+        RpcContext.getContextParams().forEach((k,v)-> System.out.println(k+" -> " +v));
+        return RpcContext.getContextParam(key);
     }
 }

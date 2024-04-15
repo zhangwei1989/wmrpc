@@ -70,19 +70,19 @@ public class WmrpcDemoProviderApplication {
 //            System.out.println("response1: " + response1.getData());
 
             // test 5 for traffic control
-            System.out.println("Provider Case 5. >>===[复杂测试：测试流量并发控制===");
-            for (int i = 0; i < 60; i++) {
-                try {
-                    Thread.sleep(1000);
-                    RpcResponse r = transport.invoke(request);
-                    System.out.println(i + " ***>>> " + r.getData());
-                } catch (RpcException e) {
-                    // ignore
-                    System.out.println(i + " ***>>> " + e.getMessage() + " -> " + e.getErrCode());
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-            }
+//            System.out.println("Provider Case 5. >>===[复杂测试：测试流量并发控制===");
+//            for (int i = 0; i < 60; i++) {
+//                try {
+//                    Thread.sleep(1000);
+//                    RpcResponse r = transport.invoke(request);
+//                    System.out.println(i + " ***>>> " + r.getData());
+//                } catch (RpcException e) {
+//                    // ignore
+//                    System.out.println(i + " ***>>> " + e.getMessage() + " -> " + e.getErrCode());
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//            }
         };
     }
 
