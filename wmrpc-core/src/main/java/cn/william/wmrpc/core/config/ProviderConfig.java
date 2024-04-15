@@ -52,4 +52,9 @@ public class ProviderConfig {
     RegistryCenter provider_rc() {
         return new ZkRegistryCenter(zkConfigProperty);
     }
+
+    @Bean
+    ApolloChangedEventListener apolloChangedEventListener() {
+        return new ApolloChangedEventListener();
+    }
 }

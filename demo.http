@@ -13,6 +13,9 @@ GET http://localhost:8081/ports?ports=8082
 ### 获取provider 8082端接口调整 ports
 GET http://localhost:8082/ports?ports=8082
 
+### 获取provider 8081端配置参数 metas
+GET http://localhost:8081/meta
+
 ### 获取用户信息
 POST http://localhost:8080/
 Content-Type: application/json

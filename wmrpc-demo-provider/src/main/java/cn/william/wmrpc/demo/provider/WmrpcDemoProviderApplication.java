@@ -3,6 +3,7 @@ package cn.william.wmrpc.demo.provider;
 import cn.william.wmrpc.core.api.RpcRequest;
 import cn.william.wmrpc.core.api.RpcResponse;
 import cn.william.wmrpc.core.config.ProviderConfig;
+import cn.william.wmrpc.core.config.ProviderConfigProperty;
 import cn.william.wmrpc.core.provider.ProviderInvoker;
 import cn.william.wmrpc.demo.api.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 @SpringBootApplication
 @RestController
+//@EnableApolloConfig
 @Import(ProviderConfig.class)
 public class WmrpcDemoProviderApplication {
+
+    @Autowired
+    ProviderConfigProperty providerConfigProperty;
 
     @Autowired
     ProviderInvoker providerInvoker;
@@ -39,6 +44,14 @@ public class WmrpcDemoProviderApplication {
         RpcResponse response = new RpcResponse();
         response.setStatus(true);
         response.setData("OK,ports set to " + ports);
+        return response;
+    }
+
+    @RequestMapping("/meta")
+    public RpcResponse meta() {
+        RpcResponse response = new RpcResponse();
+        response.setData(providerConfigProperty.getMetas());
+
         return response;
     }
 
