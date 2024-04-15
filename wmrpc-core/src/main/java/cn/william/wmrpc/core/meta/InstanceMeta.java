@@ -53,4 +53,9 @@ public class InstanceMeta {
     public String toMetas() {
         return JSON.toJSONString(this.getParameters());
     }
+
+    public InstanceMeta addParams(Map<String, String> map) {
+        this.parameters.putAll(map);
+        return this;
+    }
 }
