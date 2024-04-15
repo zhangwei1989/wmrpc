@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.goverance;
 
 import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Description for this class.
@@ -9,6 +10,7 @@ import lombok.ToString;
  * @Create : 2024/4/1
  */
 @ToString
+@Slf4j
 public class SlidingTimeWindow {
 
     public static final int DEFAULT_SIZE = 30;
@@ -72,6 +74,23 @@ public class SlidingTimeWindow {
         this._curr_ts = ts;
         this._curr_mark = 0;
         this.ringBuffer.incr(0, 1);
+    }
+
+    public int calcSum() {
+        long ts = System.currentTimeMillis() / 1000;
+        if(ts > _curr_ts && ts < _curr_ts + size) {
+            int offset = (int)(ts - _curr_ts);
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size + ", offset:" + offset);
+            this.ringBuffer.reset(_curr_mark + 1, offset);
+            _curr_ts = ts;
+            _curr_mark = (_curr_mark + offset) % size;
+        } else if(ts >= _curr_ts + size) {
+            log.debug("calc sum for window ts:" + ts + ", curr_ts:" + _curr_ts + ", size:" + size);
+            this.ringBuffer.reset();
+            initRing(ts);
+        }
+        log.debug("calc sum for window:" + this);
+        return ringBuffer.sum();
     }
 
     public int getSize() {

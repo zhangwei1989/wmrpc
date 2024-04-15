@@ -15,6 +15,7 @@ wmrpc:
       dc: bj
       gray: false
       unit: B001
+      tpsLimit: 5
 
 app:
   id: main-app
