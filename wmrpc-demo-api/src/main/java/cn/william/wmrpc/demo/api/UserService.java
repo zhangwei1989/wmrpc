@@ -32,5 +32,17 @@ public interface UserService {
 
     public void setPorts(String ports);
 
+    public List<User> getList(List<User> userList);
+
+    public Map<String, User> getMap(Map<String, User> userMap);
+
+    Boolean getFlag(boolean flag);
+
+    User[] findUsers(User[] users);
+
+    User findById(long id);
+
+    User ex(boolean flag);
+
     public String echoParameter(String key);
 }

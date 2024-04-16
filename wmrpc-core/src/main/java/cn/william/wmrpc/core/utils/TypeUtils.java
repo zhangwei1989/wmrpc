@@ -3,16 +3,18 @@ package cn.william.wmrpc.core.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
- * Description for this class.
+ * 类型转换工具类
  *
  * @Author : zhangwei(331874675@qq.com)
  * @Create : 2024/3/17
@@ -24,11 +26,11 @@ public class TypeUtils {
             return null;
         }
 
-        if (origin.getClass().isAssignableFrom(targetType)) {
+        if (targetType.isAssignableFrom(origin.getClass())) {
             return origin;
         }
 
-        if (origin instanceof HashMap map) {
+        if (origin instanceof Map map) {
             JSONObject jsonObject = new JSONObject(map);
             return jsonObject.toJavaObject(targetType);
         }
@@ -62,6 +64,36 @@ public class TypeUtils {
         }
 
         return null;
+    }
+
+    public static Object castWithGenericType(Object origin, Class<?> targetType, Type genericType) {
+        if (origin instanceof List || targetType.isArray()) {
+            List originArray = (List) origin;
+            if (targetType.isArray()) {
+                Class<?> componentType = targetType.getComponentType();
+                Object result = Array.newInstance(componentType, originArray.size());
+
+                for (int i = 0; i < originArray.size(); i++) {
+                    Array.set(result, i, TypeUtils.cast(originArray.get(i), componentType));
+                }
+
+                return result;
+            } else if (List.class.isAssignableFrom(targetType)) {
+                List<Object> result = new ArrayList<>(originArray.size());
+                if (genericType instanceof ParameterizedType parameterizedType) {
+                    Type actualType = parameterizedType.getActualTypeArguments()[0];
+                    for (Object o : originArray) {
+                        result.add(cast(o, (Class<?>) actualType));
+                    }
+                } else {
+                    result.addAll(originArray);
+                }
+
+                return result;
+            }
+        }
+
+        return cast(origin, targetType);
     }
 
     public static boolean isLocalMethod(Method method) {

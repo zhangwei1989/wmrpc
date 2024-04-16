@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +99,11 @@ public class ProviderInvoker {
         }
 
         Class<?>[] parameterTypes = method.getParameterTypes();
+        Type[] genericTypes = method.getGenericParameterTypes();
         Object[] actualArgs = new Object[parameterTypes.length];
 
         for (int i = 0; i < parameterTypes.length; i++) {
-            actualArgs[i] = TypeUtils.cast(args[i], parameterTypes[i]);
+            actualArgs[i] = TypeUtils.castWithGenericType(args[i], parameterTypes[i], genericTypes[i]);
         }
 
         return actualArgs;
