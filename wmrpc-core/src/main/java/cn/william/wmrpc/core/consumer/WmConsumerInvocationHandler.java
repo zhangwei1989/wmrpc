@@ -66,6 +66,10 @@ public class WmConsumerInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if (MethodUtils.isLocalMethod(method)) {
+            return null;
+        }
+
 //        okHttpInvoker = WmConsumerInvocationHandler.applicationContext.getBean(OkHttpInvoker.class);
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setService(this.serviceName);

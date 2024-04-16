@@ -26,7 +26,7 @@ public interface UserService {
     String getName(int id);
 
     // 自定义扩展：参数和返回值里，map 里面有数组，数组里面有 User
-    Map<String, List> getMutipleUser(Map<String, List> map);
+    public Map<String, List<User>> getMutipleUser(Map<String, List<User>> map);
 
     User find(int timeout);
 

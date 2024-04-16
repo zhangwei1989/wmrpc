@@ -1,17 +1,12 @@
 package cn.william.wmrpc.core.utils;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 类型转换工具类
@@ -61,6 +56,8 @@ public class TypeUtils {
             return Byte.valueOf(origin.toString());
         } else if (Character.class.equals(targetType) || Character.TYPE.equals(targetType)) {
             return origin.toString().toCharArray()[0];
+        } else if (Boolean.class.equals(targetType) || Boolean.TYPE.equals(targetType)) {
+            return Boolean.valueOf(origin.toString());
         }
 
         return null;
@@ -91,6 +88,21 @@ public class TypeUtils {
 
                 return result;
             }
+        } else if (Map.class.isAssignableFrom(origin.getClass()) && Map.class.isAssignableFrom(targetType)) {
+            // 目标类型是 Map，而不是 POJO，需要处理泛型的逻辑
+            Map<Object, Object> resultMap = new HashMap<>();
+            if (genericType instanceof ParameterizedType parameterizedType) {
+                Type keyType = parameterizedType.getActualTypeArguments()[0];
+                Type valueType = parameterizedType.getActualTypeArguments()[1];
+                Map<Object, Object> originMap = (Map) origin;
+                originMap.forEach((k, v) -> {
+                    Object autualKey = cast(k, (Class<?>) keyType);
+                    Object autualValue = cast(v, (Class<?>) valueType);
+                    resultMap.put(autualKey, autualValue);
+                });
+
+                return resultMap;
+            }
         }
 
         return cast(origin, targetType);
@@ -101,21 +113,8 @@ public class TypeUtils {
     }
 
     public static Object castMethodResult(Method method, Object data) {
-        if (data instanceof JSONObject) {
-            JSON dataJSON = (JSONObject) data;
-            return JSON.toJavaObject(dataJSON, method.getReturnType());
-        } else if (data instanceof JSONArray array) {
-            Object[] originArray = array.toArray();
-            Class<?> componentType = method.getReturnType().getComponentType();
-            Object result = Array.newInstance(componentType, originArray.length);
-
-            for (int i = 0; i < originArray.length; i++) {
-                Array.set(result, i, TypeUtils.cast(originArray[i], componentType));
-            }
-
-            return result;
-        } else {
-            return TypeUtils.cast(data, method.getReturnType());
-        }
+        Class<?> returnType = method.getReturnType();
+        Type genericType = method.getGenericReturnType();
+        return TypeUtils.castWithGenericType(data, returnType, genericType);
     }
 }

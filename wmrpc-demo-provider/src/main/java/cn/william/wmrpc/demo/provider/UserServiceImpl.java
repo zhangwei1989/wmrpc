@@ -76,7 +76,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Map<String, List> getMutipleUser(Map<String, List> map) {
+    public Map<String, List<User>> getMutipleUser(Map<String, List<User>> map) {
+        User user = map.get("userMap").get(0);
         return map;
     }
 
