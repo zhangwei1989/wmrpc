@@ -65,3 +65,4 @@ mvn clean deploy -P release
 - [ ] 支持 Netty 替换 SpringWEB
 - [ ] SPI机制
 - [ ] 异步调用
+- [ ]类型转换中，支持泛型无限嵌套
