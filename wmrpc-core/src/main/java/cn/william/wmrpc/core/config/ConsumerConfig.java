@@ -2,17 +2,13 @@ package cn.william.wmrpc.core.config;
 
 import cn.william.wmrpc.core.api.*;
 import cn.william.wmrpc.core.cluster.GrayRouter;
-import cn.william.wmrpc.core.cluster.RandomLoadBalancer;
 import cn.william.wmrpc.core.cluster.RoundRibonLoadBalancer;
 import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
-import cn.william.wmrpc.core.filter.CacheFilter;
-import cn.william.wmrpc.core.filter.MockFilter;
 import cn.william.wmrpc.core.filter.ParameterFilter;
 import cn.william.wmrpc.core.meta.InstanceMeta;
-import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
+import cn.william.wmrpc.core.registry.zw.ZwRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -30,7 +26,7 @@ import java.util.List;
  */
 @Slf4j
 @Configuration
-@Import({AppConfigProperties.class,ConsumerConfigProperties.class})
+@Import({AppConfigProperties.class, ConsumerConfigProperties.class})
 public class ConsumerConfig {
 
     @Autowired
@@ -83,7 +79,7 @@ public class ConsumerConfig {
     @Bean(initMethod = "start", destroyMethod = "stop")
     @ConditionalOnMissingBean
     public RegistryCenter consumer_rc() {
-        return new ZkRegistryCenter();
+        return new ZwRegistryCenter();
     }
 
     @Bean

@@ -42,6 +42,9 @@ public class WmrpcDemoProviderApplication {
     UserService userService;
 
     @Autowired
+    UserService orderService;
+
+    @Autowired
     SpringBootTransport transport;
 
     @Autowired

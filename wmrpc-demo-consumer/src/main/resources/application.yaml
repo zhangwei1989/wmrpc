@@ -17,6 +17,9 @@ wmrpc:
     halfOpenInitialDelay: 10000
     halfOpenDelay: 60000
 
+zwregistry:
+  servers: http://localhost:8484
+
 app:
   id: app2
 

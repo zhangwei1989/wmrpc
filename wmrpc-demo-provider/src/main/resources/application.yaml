@@ -16,7 +16,7 @@ wmrpc:
       unit: B001
 
 zwregistry:
-  servers: https://localhost:8484
+  servers: http://localhost:8484
 
 app:
   id: app2
