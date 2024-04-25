@@ -15,6 +15,9 @@ wmrpc:
       gray: false
       unit: B001
 
+zwregistry:
+  servers: https://localhost:8484
+
 app:
   id: app2
 

@@ -51,4 +51,36 @@ public class OkHttpInvoker implements HttpInvoker {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public String post(String requestBody, String url) {
+        Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(requestBody, JSONTYPE))
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug("OkHttpInvoker post, url, requestBody, respJson ======> {}, {}, {}", url, requestBody, respJson);
+            return respJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String get(String url) {
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug("OkHttpInvoker get, url, respJson ======> {}, {}", url, respJson);
+            return respJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
 }
