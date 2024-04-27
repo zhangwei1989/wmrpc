@@ -17,6 +17,9 @@ wmrpc:
       unit: B001
       tpsLimit: 5
 
+zwregistry:
+  server: http://localhost:8484
+
 app:
   id: main-app
 

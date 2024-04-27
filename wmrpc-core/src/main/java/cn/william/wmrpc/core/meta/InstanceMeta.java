@@ -1,6 +1,7 @@
 package cn.william.wmrpc.core.meta;
 
 import com.alibaba.fastjson.JSON;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
@@ -14,9 +15,10 @@ import java.util.Map;
  */
 @Data
 @Builder
+@AllArgsConstructor
 public class InstanceMeta {
 
-    private String scheme;
+    private String schema;
 
     private String host;
 
@@ -31,7 +33,7 @@ public class InstanceMeta {
     }
 
     public String http() {
-        return String.format("%s://%s:%d", scheme, host, port) + "/wmrpc";
+        return String.format("%s://%s:%d", schema, host, port) + "/wmrpc";
     }
 
     public String toMetas() {

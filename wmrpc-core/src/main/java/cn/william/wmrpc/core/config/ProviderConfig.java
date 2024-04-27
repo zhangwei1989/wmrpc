@@ -1,12 +1,9 @@
 package cn.william.wmrpc.core.config;
 
-import cn.william.wmrpc.core.api.LoadBalancer;
 import cn.william.wmrpc.core.api.RegistryCenter;
-import cn.william.wmrpc.core.api.Router;
-import cn.william.wmrpc.core.api.RpcContext;
 import cn.william.wmrpc.core.provider.ProviderBootstrap;
 import cn.william.wmrpc.core.provider.ProviderInvoker;
-import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
+import cn.william.wmrpc.core.registry.zw.ZwRegistryCenter;
 import cn.william.wmrpc.core.transport.SpringHttpTransport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +51,7 @@ public class ProviderConfig {
     @Bean
         // (initMethod = "start", destroyMethod = "stop")
     RegistryCenter provider_rc() {
-        return new ZkRegistryCenter(zkConfigProperty);
+        return new ZwRegistryCenter();
     }
 
     @Bean

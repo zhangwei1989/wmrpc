@@ -5,7 +5,7 @@ import cn.william.wmrpc.core.cluster.GrayRouter;
 import cn.william.wmrpc.core.cluster.RoundRibbonLoadBalancer;
 import cn.william.wmrpc.core.consumer.ConsumerBootstrap;
 import cn.william.wmrpc.core.filter.ParamsFilter;
-import cn.william.wmrpc.core.registry.zk.ZkRegistryCenter;
+import cn.william.wmrpc.core.registry.zw.ZwRegistryCenter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
@@ -63,7 +63,7 @@ public class ConsumerConfig {
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     RegistryCenter consumer_rc() {
-        return new ZkRegistryCenter(zkConfigProperty);
+        return new ZwRegistryCenter();
     }
 
     @Bean

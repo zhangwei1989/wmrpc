@@ -34,6 +34,9 @@ public class WmrpcDemoProviderApplication {
     UserService userService;
 
     @Autowired
+    UserService orderService;
+
+    @Autowired
     SpringHttpTransport transport;
 
     @RequestMapping("/ports")

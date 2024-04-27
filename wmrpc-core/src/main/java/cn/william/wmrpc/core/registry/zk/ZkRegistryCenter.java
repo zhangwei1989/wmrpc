@@ -96,7 +96,7 @@ public class ZkRegistryCenter implements RegistryCenter {
 
         return nodes.stream().map(n -> {
             InstanceMeta instanceMeta = InstanceMeta.builder()
-                    .scheme("http").host(n.split("_")[0]).port(Integer.valueOf(n.split("_")[1])).context(n.split("_")[2]).build();
+                    .schema("http").host(n.split("_")[0]).port(Integer.valueOf(n.split("_")[1])).context(n.split("_")[2]).build();
 
             // 获取 ZK 中获取的 instanceMeta 里的 meta 信息，并设置
             try {

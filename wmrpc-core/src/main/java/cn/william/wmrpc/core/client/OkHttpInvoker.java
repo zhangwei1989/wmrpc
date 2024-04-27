@@ -19,6 +19,8 @@ public class OkHttpInvoker implements HttpInvoker {
 
     private final OkHttpClient client;
 
+    final static MediaType JSONTYPE = MediaType.get("application/json; charset=utf-8");
+
     public OkHttpInvoker(int timeout) {
         client = new OkHttpClient().newBuilder()
                 .connectTimeout(timeout, TimeUnit.MILLISECONDS)
@@ -46,6 +48,38 @@ public class OkHttpInvoker implements HttpInvoker {
             String responseJSON = response.body().string();
             log.info("=============> responseJSON: {}", responseJSON);
             return JSON.parseObject(responseJSON, RpcResponse.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String post(String requestBody, String url) {
+        Request request = new Request.Builder()
+                .url(url)
+                .post(RequestBody.create(requestBody, JSONTYPE))
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug("OkHttpInvoker post, url, requestBody, respJson ======> {}, {}, {}", url, requestBody, respJson);
+            return respJson;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public String get(String url) {
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+        try {
+            String respJson = client.newCall(request).execute().body().string();
+            log.debug("OkHttpInvoker get, url, respJson ======> {}, {}", url, respJson);
+            return respJson;
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException(e);
