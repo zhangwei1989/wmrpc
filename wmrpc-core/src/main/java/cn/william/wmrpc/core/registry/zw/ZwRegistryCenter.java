@@ -10,6 +10,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +34,8 @@ public class ZwRegistryCenter implements RegistryCenter {
 
     final static Map<String, Long> VERSIONS = new ConcurrentHashMap<>();
 
+    MultiValueMap<InstanceMeta, String> RENEWS = new LinkedMultiValueMap<>();
+
     private ScheduledExecutorService consumerExecutorService;
 
     private ScheduledExecutorService providerExecutorService;
@@ -42,6 +46,23 @@ public class ZwRegistryCenter implements RegistryCenter {
         // 启动注册中心时，初始化消费者和服务者各自的定时任务执行器
         consumerExecutorService = Executors.newSingleThreadScheduledExecutor();
         providerExecutorService = Executors.newSingleThreadScheduledExecutor();
+        renews();
+    }
+
+    private void renews() {
+        providerExecutorService.scheduleWithFixedDelay(() -> {
+            RENEWS.keySet().forEach(instance -> {
+                String services = String.join(",", RENEWS.get(instance));
+                if (services.endsWith(",")) {
+                    services.substring(0, services.length() - 1);
+                }
+
+                log.info(" ======> [ZwRegistryCenter] RENEWS : {}", RENEWS);
+                log.info(" ======> [ZwRegistryCenter] services : {}", services);
+                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/renews?services=" + services, Long.class);
+                log.info(" ======> [ZwRegistryCenter] -> providerExecutorService renews completed, timestamp : {}", timestamp);
+            });
+        }, 5000, 5000, TimeUnit.MILLISECONDS);
     }
 
     @Override
@@ -68,6 +89,7 @@ public class ZwRegistryCenter implements RegistryCenter {
         log.info(" ======> [ZwRegistryCenter] -> register instance : {}, for service {}", instance, service);
         InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/reg?service=" + service.toPath(), InstanceMeta.class);
         log.info(" ======> [ZwRegistryCenter] -> registered instance : {}, for service {}", instanceMeta, service);
+        RENEWS.add(instance, service.toPath());
     }
 
     @Override
@@ -75,6 +97,7 @@ public class ZwRegistryCenter implements RegistryCenter {
         log.info(" ======> [ZwRegistryCenter] -> unregister instance : {}, for service {}", instance, service);
         InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/unreg?service=" + service.toPath(), InstanceMeta.class);
         log.info(" ======> [ZwRegistryCenter] -> unregistered instance : {}, for service {}", instanceMeta, service);
+        RENEWS.remove(instance, service.toPath());
     }
 
     @Override
