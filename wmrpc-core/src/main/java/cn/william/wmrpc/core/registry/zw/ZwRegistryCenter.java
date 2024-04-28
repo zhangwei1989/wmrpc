@@ -69,7 +69,7 @@ public class ZwRegistryCenter implements RegistryCenter {
     public void stop() {
         gracefulShutdown(consumerExecutorService);
         gracefulShutdown(providerExecutorService);
-        log.info(" ======> [ZwRegistryCenter] -> ZwRegistryCenter stoped");
+        log.info(" ======> [ZwRegistryCenter] -> ZwRegistryCenter stopped");
     }
 
     private void gracefulShutdown(ScheduledExecutorService executorService) {
