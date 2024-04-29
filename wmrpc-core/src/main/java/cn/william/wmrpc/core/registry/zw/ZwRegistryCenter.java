@@ -16,9 +16,6 @@ import org.springframework.util.MultiValueMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * ZwRegistryCenter
@@ -39,7 +36,6 @@ public class ZwRegistryCenter implements RegistryCenter {
 
     private static final String RENEWS_PATH = "/renews";
 
-
     @Value("${zwregistry.server}")
     private String server;
 
@@ -47,21 +43,17 @@ public class ZwRegistryCenter implements RegistryCenter {
 
     MultiValueMap<InstanceMeta, String> RENEWS = new LinkedMultiValueMap<>();
 
-    private ScheduledExecutorService consumerExecutorService;
-
-    private ScheduledExecutorService providerExecutorService;
+    private ZwHealthChecker healthChecker = new ZwHealthChecker();
 
     @Override
     public void start() {
         log.info(" ======> [ZwRegistryCenter] -> ZwRegistryCenter started");
-        // 启动注册中心时，初始化消费者和服务者各自的定时任务执行器
-        consumerExecutorService = Executors.newSingleThreadScheduledExecutor();
-        providerExecutorService = Executors.newSingleThreadScheduledExecutor();
-        renews();
+        healthChecker.start();
+        providerCheck();
     }
 
-    private void renews() {
-        providerExecutorService.scheduleWithFixedDelay(() -> {
+    private void providerCheck() {
+        healthChecker.providerCheck(() -> {
             RENEWS.keySet().forEach(instance -> {
                 String services = String.join(",", RENEWS.get(instance));
                 if (services.endsWith(",")) {
@@ -73,26 +65,13 @@ public class ZwRegistryCenter implements RegistryCenter {
                 Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), renewsPath(services), Long.class);
                 log.info(" ======> [ZwRegistryCenter] -> providerExecutorService renews completed, timestamp : {}", timestamp);
             });
-        }, 5000, 5000, TimeUnit.MILLISECONDS);
+        });
     }
 
     @Override
     public void stop() {
-        gracefulShutdown(consumerExecutorService);
-        gracefulShutdown(providerExecutorService);
+        healthChecker.stop();
         log.info(" ======> [ZwRegistryCenter] -> ZwRegistryCenter stopped");
-    }
-
-    private void gracefulShutdown(ScheduledExecutorService executorService) {
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(1000, TimeUnit.MILLISECONDS);
-            if (!executorService.isShutdown()) {
-                executorService.shutdownNow();
-            }
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -114,8 +93,7 @@ public class ZwRegistryCenter implements RegistryCenter {
     @Override
     public List<InstanceMeta> fetchAll(ServiceMeta service) {
         log.info(" ======> [ZwRegistryCenter] -> find all instances for service start {}", service);
-        List<InstanceMeta> instances = HttpInvoker.httpGet(findAllPath(service), new TypeReference<>() {
-        });
+        List<InstanceMeta> instances = HttpInvoker.httpGet(findAllPath(service), new TypeReference<>() {});
         log.info(" ======> [ZwRegistryCenter] -> find all instances : {}, for service {} finished", instances, service);
         return instances;
     }
@@ -125,7 +103,7 @@ public class ZwRegistryCenter implements RegistryCenter {
         String servicePath = service.toPath();
 
         // 定时循环请求VERSIONS中，获取注册中心的该 service 版本
-        consumerExecutorService.scheduleWithFixedDelay(() -> {
+        healthChecker.consumerCheck(() -> {
             log.info(" ======> [ZwRegistryCenter] -> get version of service : {}", service);
             Long version = VERSIONS.getOrDefault(servicePath, -1L);
             Long rcVersion = HttpInvoker.httpGet(versionPath(service), Long.class);
@@ -136,7 +114,7 @@ public class ZwRegistryCenter implements RegistryCenter {
                 listener.fire(new Event(instances));
                 VERSIONS.put(servicePath, rcVersion);
             }
-        }, 5000, 5000, TimeUnit.MILLISECONDS);
+        });
     }
 
     private String regPath(ServiceMeta service) {
