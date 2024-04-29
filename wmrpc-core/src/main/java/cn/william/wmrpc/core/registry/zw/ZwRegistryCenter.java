@@ -29,6 +29,17 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ZwRegistryCenter implements RegistryCenter {
 
+    private static final String REG_PATH = "/reg";
+
+    private static final String UNREG_PATH = "/unreg";
+
+    private static final String FINDALL_PATH = "/findAll";
+
+    private static final String VERSION_PATH = "/version";
+
+    private static final String RENEWS_PATH = "/renews";
+
+
     @Value("${zwregistry.server}")
     private String server;
 
@@ -59,7 +70,7 @@ public class ZwRegistryCenter implements RegistryCenter {
 
                 log.info(" ======> [ZwRegistryCenter] RENEWS : {}", RENEWS);
                 log.info(" ======> [ZwRegistryCenter] services : {}", services);
-                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/renews?services=" + services, Long.class);
+                Long timestamp = HttpInvoker.httpPost(JSON.toJSONString(instance), renewsPath(services), Long.class);
                 log.info(" ======> [ZwRegistryCenter] -> providerExecutorService renews completed, timestamp : {}", timestamp);
             });
         }, 5000, 5000, TimeUnit.MILLISECONDS);
@@ -87,7 +98,7 @@ public class ZwRegistryCenter implements RegistryCenter {
     @Override
     public void register(ServiceMeta service, InstanceMeta instance) {
         log.info(" ======> [ZwRegistryCenter] -> register instance : {}, for service {}", instance, service);
-        InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/reg?service=" + service.toPath(), InstanceMeta.class);
+        InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), regPath(service), InstanceMeta.class);
         log.info(" ======> [ZwRegistryCenter] -> registered instance : {}, for service {}", instanceMeta, service);
         RENEWS.add(instance, service.toPath());
     }
@@ -95,7 +106,7 @@ public class ZwRegistryCenter implements RegistryCenter {
     @Override
     public void unregister(ServiceMeta service, InstanceMeta instance) {
         log.info(" ======> [ZwRegistryCenter] -> unregister instance : {}, for service {}", instance, service);
-        InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), server + "/unreg?service=" + service.toPath(), InstanceMeta.class);
+        InstanceMeta instanceMeta = HttpInvoker.httpPost(JSON.toJSONString(instance), unregPath(service), InstanceMeta.class);
         log.info(" ======> [ZwRegistryCenter] -> unregistered instance : {}, for service {}", instanceMeta, service);
         RENEWS.remove(instance, service.toPath());
     }
@@ -103,7 +114,7 @@ public class ZwRegistryCenter implements RegistryCenter {
     @Override
     public List<InstanceMeta> fetchAll(ServiceMeta service) {
         log.info(" ======> [ZwRegistryCenter] -> find all instances for service start {}", service);
-        List<InstanceMeta> instances = HttpInvoker.httpGet(server + "/findAll?service=" + service.toPath(), new TypeReference<>() {
+        List<InstanceMeta> instances = HttpInvoker.httpGet(findAllPath(service), new TypeReference<>() {
         });
         log.info(" ======> [ZwRegistryCenter] -> find all instances : {}, for service {} finished", instances, service);
         return instances;
@@ -117,7 +128,7 @@ public class ZwRegistryCenter implements RegistryCenter {
         consumerExecutorService.scheduleWithFixedDelay(() -> {
             log.info(" ======> [ZwRegistryCenter] -> get version of service : {}", service);
             Long version = VERSIONS.getOrDefault(servicePath, -1L);
-            Long rcVersion = HttpInvoker.httpGet(server + "/version?service=" + servicePath, Long.class);
+            Long rcVersion = HttpInvoker.httpGet(versionPath(service), Long.class);
             log.info(" ======> [ZwRegistryCenter] -> check version for service : {}, version = {} -> rcVersion = {}", service, version, rcVersion);
             // 与本地版本做比对，版本落后时，重新 fetchAll
             if (version < rcVersion) {
@@ -126,6 +137,34 @@ public class ZwRegistryCenter implements RegistryCenter {
                 VERSIONS.put(servicePath, rcVersion);
             }
         }, 5000, 5000, TimeUnit.MILLISECONDS);
+    }
+
+    private String regPath(ServiceMeta service) {
+        return path(REG_PATH, service);
+    }
+
+    private String unregPath(ServiceMeta service) {
+        return path(UNREG_PATH, service);
+    }
+
+    private String findAllPath(ServiceMeta service) {
+        return path(FINDALL_PATH, service);
+    }
+
+    private String versionPath(ServiceMeta service) {
+        return path(VERSION_PATH, service);
+    }
+
+    private String renewsPath(String services) {
+        return path(RENEWS_PATH, services);
+    }
+
+    private String path(String context, ServiceMeta service) {
+        return server + context + "?service=" + service.toPath();
+    }
+
+    private String path(String context, String services) {
+        return server + context + "?services=" + services;
     }
 
 }
