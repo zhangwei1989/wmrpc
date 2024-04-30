@@ -29,7 +29,7 @@ public class InstanceMeta {
     private Map<String, String> parameters;
 
     public String toPath() {
-        return String.format("%s_%d_%s", host, port, context);
+        return String.format("%s_%d", host, port);
     }
 
     public String http() {
