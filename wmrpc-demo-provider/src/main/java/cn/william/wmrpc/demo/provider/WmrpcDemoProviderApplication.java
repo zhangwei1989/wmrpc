@@ -7,6 +7,7 @@ import cn.william.wmrpc.core.config.ProviderConfigProperty;
 import cn.william.wmrpc.core.transport.SpringHttpTransport;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
+import io.github.zhangwei1989.zwconfig.client.annotation.EnableZWConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -25,6 +26,7 @@ import java.util.Map;
 @SpringBootApplication
 @RestController
 @Import(ProviderConfig.class)
+@EnableZWConfig
 public class WmrpcDemoProviderApplication {
 
     @Autowired

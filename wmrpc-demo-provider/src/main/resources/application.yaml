@@ -38,3 +38,5 @@ logging:
   level:
     root: error
     cn.william.wmrpc: debug
+    cn.kimmking: debug
+    io.github.zhangwei1989: debug

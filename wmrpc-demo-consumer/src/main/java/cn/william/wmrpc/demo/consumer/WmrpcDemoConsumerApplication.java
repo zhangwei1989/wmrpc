@@ -8,6 +8,7 @@ import cn.william.wmrpc.core.config.ConsumerConfig;
 import cn.william.wmrpc.core.config.ConsumerConfigProperty;
 import cn.william.wmrpc.demo.api.User;
 import cn.william.wmrpc.demo.api.UserService;
+import io.github.zhangwei1989.zwconfig.client.annotation.EnableZWConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -26,6 +27,7 @@ import java.util.*;
 @RestController
 @Slf4j
 @Import(ConsumerConfig.class)
+@EnableZWConfig
 public class WmrpcDemoConsumerApplication {
 
     @WmConsumer

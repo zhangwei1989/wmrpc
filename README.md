@@ -37,9 +37,11 @@ mvn clean deploy -P release
     - [x] 实现监听机制，支持动态更新 instance 节点
     - [ ] curator-x-discovery重新实现zk rc
   - [ ] Nacos
+  - [x] ZwRegistry
 - [x] 支持配置中心
   - [x] Apollo，实现监听机制，支持动态更新 Bean 配置
   - [ ] Nacos
+  - [x] ZwConfig
 - [x] 支持负载均衡
   - [x] 随机
   - [x] 轮询
