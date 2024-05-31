@@ -67,4 +67,5 @@ mvn clean deploy -P release
 - [ ] 支持 Netty 替换 SpringWEB
 - [ ] SPI机制
 - [ ] 异步调用
-- [ ]类型转换中，支持泛型无限嵌套
+- [ ] 类型转换中，支持泛型无限嵌套
+- [ ] 重构 RPC 代码，把框架中的 Controller 层代码替代掉
